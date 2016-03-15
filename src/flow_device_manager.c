@@ -67,56 +67,57 @@
  **************************************************************************************************/
 
 /**
-* Flow object to hold Flow Cloud specific information.
-*/
+ * Flow object to hold Flow Cloud specific information.
+ */
 const OBJECT_T flowObject =
 { "FlowObject", Lwm2mObjectId_FlowObject, 11,
 	(RESOURCE_T [])
 	{
-		{ FlowObjectResourceId_DeviceId, "DeviceID", AwaResourceType_Opaque, true },
-		{ FlowObjectResourceId_ParentId, "ParentID", AwaResourceType_Opaque, false },
-		{ FlowObjectResourceId_DeviceType, "DeviceType", AwaResourceType_String, true },
-		{ FlowObjectResourceId_DeviceName, "Name", AwaResourceType_String, false },
-		{ FlowObjectResourceId_Description, "Description", AwaResourceType_String, false },
-		{ FlowObjectResourceId_Fcap, "FCAP", AwaResourceType_String, true },
-		{ FlowObjectResourceId_LicenseeId, "LicenseeID", AwaResourceType_Integer, true },
+		{ FlowObjectResourceId_DeviceId, "DeviceID", AwaResourceType_Opaque, true, true },
+		{ FlowObjectResourceId_ParentId, "ParentID", AwaResourceType_Opaque, false, false },
+		{ FlowObjectResourceId_DeviceType, "DeviceType", AwaResourceType_String, true, true },
+		{ FlowObjectResourceId_DeviceName, "Name", AwaResourceType_String, false, false },
+		{ FlowObjectResourceId_Description, "Description", AwaResourceType_String, false, false },
+		{ FlowObjectResourceId_Fcap, "FCAP", AwaResourceType_String, true, true },
+		{ FlowObjectResourceId_LicenseeId, "LicenseeID", AwaResourceType_Integer, true, true },
 		{ FlowObjectResourceId_LicenseeChallenge, "LicenseeChallenge",
-			AwaResourceType_Opaque, false },
-		{ FlowObjectResourceId_HashIterations, "HashIterations", AwaResourceType_Integer,
+			AwaResourceType_Opaque, false, false },
+		{ FlowObjectResourceId_HashIterations, "HashIterations", AwaResourceType_Integer, false,
 			false },
-		{ FlowObjectResourceId_LicenseeHash, "LicenseeHash", AwaResourceType_Opaque, false},
-		{ FlowObjectResourceId_Status, "Status", AwaResourceType_Integer, false }
+		{ FlowObjectResourceId_LicenseeHash, "LicenseeHash", AwaResourceType_Opaque, false, false },
+		{ FlowObjectResourceId_Status, "Status", AwaResourceType_Integer, false, false }
 	}
 };
 
 /**
-* Flow Access object to hold information for accessing Flow Cloud.
-*/
+ * Flow Access object to hold information for accessing Flow Cloud.
+ */
 const OBJECT_T flowAccessObject =
 { "FlowAccess", Lwm2mObjectId_FlowAccess, 5,
 	(RESOURCE_T [])
 	{
-		{ FlowAccessResourceId_Url, "URL", AwaResourceType_String, true },
-		{ FlowAccessResourceId_CustomerKey, "CustomerKey", AwaResourceType_String, true },
-		{ FlowAccessResourceId_CustomerSecret, "CustomerSecret", AwaResourceType_String,
+		{ FlowAccessResourceId_Url, "URL", AwaResourceType_String, false, true },
+		{ FlowAccessResourceId_CustomerKey, "CustomerKey", AwaResourceType_String, false, true },
+		{ FlowAccessResourceId_CustomerSecret, "CustomerSecret", AwaResourceType_String, false,
 			true },
-		{ FlowAccessResourceId_RememberMeToken, "RememberMeToken", AwaResourceType_String,
+		{ FlowAccessResourceId_RememberMeToken, "RememberMeToken", AwaResourceType_String, false,
 			true },
 		{ FlowAccessResourceId_RememberMeTokenExpiry, "RememberMeTokenExpiry",
-			AwaResourceType_Integer, true }
+			AwaResourceType_Integer, false, true }
 	}
 };
 
 /**
-* Initialise Awa standard objects.
-* Device object: hold device specific information.
-*/
+ * Initialise Awa standard objects.
+ * Device object: hold device specific information.
+ */
 static const OBJECT_T deviceObject =
 { "DeviceObject", Lwm2mObjectId_DeviceObject, 2,
 	(RESOURCE_T [])
 	{
-		{ DeviceObjectResourceId_SerialNumber, "SerialNumber", AwaResourceType_String, true },
-		{ DeviceObjectResourceId_SoftwareVersion, "SoftwareVersion", AwaResourceType_String,
+		{ DeviceObjectResourceId_SerialNumber, "SerialNumber", AwaResourceType_String, false,
+			true },
+		{ DeviceObjectResourceId_SoftwareVersion, "SoftwareVersion", AwaResourceType_String, false,
 			true }
 	}
 };

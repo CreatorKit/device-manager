@@ -92,17 +92,20 @@ static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
 		{
 			case AwaResourceType_String:
 				error = AwaObjectDefinition_AddResourceDefinitionAsString(awaObject,
-					resource->id, resource->name, false, AwaResourceOperations_ReadWrite, "");
+					resource->id, resource->name, resource->isMandatory,
+					AwaResourceOperations_ReadWrite, "");
 				break;
 
 			case AwaResourceType_Integer:
 				error = AwaObjectDefinition_AddResourceDefinitionAsInteger(awaObject,
-					resource->id, resource->name, false, AwaResourceOperations_ReadWrite, 0);
+					resource->id, resource->name, resource->isMandatory,
+					AwaResourceOperations_ReadWrite, 0);
 				break;
 
 			case AwaResourceType_Opaque:
 				error = AwaObjectDefinition_AddResourceDefinitionAsOpaque(awaObject,
-					resource->id, resource->name, false, AwaResourceOperations_ReadWrite,
+					resource->id, resource->name, resource->isMandatory,
+					AwaResourceOperations_ReadWrite,
 					((AwaOpaque){0}));
 				break;
 
