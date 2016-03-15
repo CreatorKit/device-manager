@@ -121,6 +121,7 @@ typedef struct
 	AwaResourceID id;
 	const char *name;
 	AwaResourceType type;
+	bool isMandatory;
 	bool wantToSave;
 	//! \}
 } RESOURCE_T;
