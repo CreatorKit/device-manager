@@ -56,7 +56,6 @@
 #define MIN_INSTANCES     (0)
 #define MAX_INSTANCES     (1)
 #define OPAQUE_VALUE_SIZE (32)
-#define DEVICE_ID_SIZE    (16)
 //! \}
 
 /***************************************************************************************************

@@ -82,6 +82,7 @@ typedef struct
 	char fcapPath[URL_PATH_SIZE];
 	char deviceTypePath[URL_PATH_SIZE];
 	char licenseeIDPath[URL_PATH_SIZE];
+	char parentIDPath[URL_PATH_SIZE];
 
 
 	// FlowAccess object resources
@@ -120,6 +121,9 @@ static bool MakePaths(void)
 		AwaAPI_MakeResourcePath(pathStore.licenseeIDPath, URL_PATH_SIZE,
 			Lwm2mObjectId_FlowObject, 0,
 			FlowObjectResourceId_LicenseeId) != AwaError_Success ||
+		AwaAPI_MakeResourcePath(pathStore.parentIDPath, URL_PATH_SIZE,
+			Lwm2mObjectId_FlowObject, 0,
+			FlowObjectResourceId_ParentId) != AwaError_Success ||
 		// FlowAccess resources
 		AwaAPI_MakeResourcePath(pathStore.flowCloudUrlPath, URL_PATH_SIZE,
 			Lwm2mObjectId_FlowAccess, 0, FlowAccessResourceId_Url) != AwaError_Success ||
@@ -309,10 +313,21 @@ static bool IsFlowObjectInstancePresent(const AwaServerSession *session, const c
 }
 
 static bool WriteProvisioningInformationToDevice (const AwaServerSession *session,
-	const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID)
+	const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID,
+	const char *parentID)
 {
 	bool result = false;
 	AwaError error = AwaError_Success;
+	unsigned char i, gatewayDeviceID[DEVICE_ID_SIZE];
+	AwaOpaque parentIDOpaque;
+
+	// 3 because two is for hex letters and one for space
+	if (strlen(parentID)/3 != DEVICE_ID_SIZE)
+	{
+		LOG(LOG_ERR, "ParentID is not of %u bytes", DEVICE_ID_SIZE);
+		return false;
+	}
+
 	AwaServerWriteOperation * writeOp = AwaServerWriteOperation_New(session,
 		AwaWriteMode_Update);
 	if (writeOp != NULL)
@@ -335,6 +350,18 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
 			{
 				error = AwaServerWriteOperation_AddValueAsInteger(writeOp,
 					pathStore.licenseeIDPath, licenseeID);
+			}
+			if (error == AwaError_Success)
+			{
+				for (i = 0; i < DEVICE_ID_SIZE; i++)
+				{
+					// 3 because two is for hex letters and one for space
+					sscanf(&parentID[i*3], "%02hhX", &gatewayDeviceID[i]);
+				}
+				parentIDOpaque.Data = gatewayDeviceID;
+				parentIDOpaque.Size = sizeof(gatewayDeviceID);
+				error = AwaServerWriteOperation_AddValueAsOpaque(writeOp,
+					pathStore.parentIDPath, parentIDOpaque);
 			}
 			if (error == AwaError_Success)
 			{
@@ -394,12 +421,14 @@ bool IsConstrainedDeviceProvisioned(const char *clientID)
 }
 
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char*fcap,
-	const char *deviceType, int licenseeID)
+	const char *deviceType, int licenseeID, const char *parentID)
 {
 	ProvisionStatus result = PROVISION_FAIL;
 	OBJECT_T flowObjects[] = {flowObject, flowAccessObject};
-	LOG(LOG_INFO, "Provision constrained device: %s, %s, %d", clientID, deviceType, licenseeID);
-	if (clientID == NULL || fcap == NULL)
+	LOG(LOG_INFO, "Provision constrained device:\n"
+		"\n%-11s\t = %s\n%-11s\t = %s\n%-11s\t = %d\n%-11s\t = %s", "Client ID", clientID, "Device Type",
+		deviceType, "Licensee ID", licenseeID, "Parent ID", parentID);
+	if (clientID == NULL || fcap == NULL || parentID == NULL)
 	{
 		LOG(LOG_ERR, "Null arguments to %s()", __func__);
 		return PROVISION_FAIL;
@@ -427,7 +456,7 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char*fcap
 		{
 			LOG(LOG_INFO, "Provisioning constrained device");
 			if (!WriteProvisioningInformationToDevice(serverSession, clientID, fcap, deviceType,
-				licenseeID))
+				licenseeID, parentID))
 			{
 				LOG(LOG_ERR, "Writing of device provisioning information failed");
 			}
