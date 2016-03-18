@@ -76,6 +76,7 @@ typedef struct
 {
 	//! \{
 	char flowObjectInstancePath[URL_PATH_SIZE];
+	char flowAccessObjectPath[URL_PATH_SIZE];
 	char flowAccessObjectInstancePath[URL_PATH_SIZE];
 
 	// FlowObject resources
@@ -99,6 +100,8 @@ typedef struct
  **************************************************************************************************/
 
 static Paths pathStore;
+static bool isProvisioned = false;
+static bool pathsMade = false;
 
 /***************************************************************************************************
  * Implementation
@@ -109,6 +112,8 @@ static bool MakePaths(void)
 	memset(&pathStore, 0, sizeof(Paths));
 	if (AwaAPI_MakeObjectInstancePath(pathStore.flowObjectInstancePath, URL_PATH_SIZE,
 			Lwm2mObjectId_FlowObject, 0) != AwaError_Success ||
+		AwaAPI_MakeObjectPath(pathStore.flowAccessObjectPath, URL_PATH_SIZE,
+				Lwm2mObjectId_FlowAccess) != AwaError_Success ||
 		AwaAPI_MakeObjectInstancePath(pathStore.flowAccessObjectInstancePath, URL_PATH_SIZE,
 			Lwm2mObjectId_FlowAccess, 0) != AwaError_Success ||
 		// FlowObject resources
@@ -150,10 +155,14 @@ bool IsDeviceProvisioned(const AwaServerSession *session, const char *clientID)
 	const char * tempStr = NULL;
 	const AwaInteger *tempTimePtr = NULL;
 
-	if (!MakePaths())
+	if (!pathsMade)
 	{
-		LOG(LOG_ERR, "Failed to create paths");
-		return false;
+		if (!MakePaths())
+		{
+			LOG(LOG_ERR, "Failed to create paths");
+			return false;
+		}
+		pathsMade = true;
 	}
 
 	AwaServerReadOperation *readOp = AwaServerReadOperation_New(session);
@@ -268,6 +277,7 @@ static bool IsDevicePresent(const AwaServerSession *session, const char *clientI
 	return result;
 }
 
+
 static bool IsFlowObjectInstancePresent(const AwaServerSession *session, const char *clientID)
 {
 	AwaServerReadOperation *readOp = AwaServerReadOperation_New(session);
@@ -308,12 +318,226 @@ static bool IsFlowObjectInstancePresent(const AwaServerSession *session, const c
 	return true;
 }
 
+static void FlowAccessObjectUpdated(const AwaChangeSet *changeSet, void *context)
+{
+	LOG(LOG_DBG, "In FlowAccessObjectUpdated");
+	if (changeSet != NULL)
+	{
+		if (!pathsMade)
+		{
+			if (!MakePaths())
+			{
+				LOG(LOG_ERR, "Failed to create paths");
+				return;
+			}
+			pathsMade = true;
+		}
+
+		const char *url=NULL, *key=NULL, *secret=NULL, *token=NULL;
+		const AwaInteger *tokenExpiry = NULL;
+		if (AwaChangeSet_ContainsPath(changeSet, pathStore.flowCloudUrlPath) &&
+			AwaChangeSet_HasValue(changeSet, pathStore.flowCloudUrlPath))
+		{
+			AwaChangeSet_GetValueAsCStringPointer(changeSet, pathStore.flowCloudUrlPath, &url);
+			LOG(LOG_DBG, "Retrieved flowcloudUrl");
+		}
+		else
+		{
+			LOG(LOG_DBG, "Failed to retrieve flowcloudUrl");
+		}
+
+		if (AwaChangeSet_ContainsPath(changeSet, pathStore.customerKeyPath) &&
+			AwaChangeSet_HasValue(changeSet, pathStore.customerKeyPath))
+		{
+			AwaChangeSet_GetValueAsCStringPointer(changeSet, pathStore.customerKeyPath, &key);
+			LOG(LOG_DBG, "Retrieved customerKey");
+		}
+		else
+		{
+			LOG(LOG_DBG, "Failed to retrieve customerKey");
+		}
+
+		if (AwaChangeSet_ContainsPath(changeSet, pathStore.customerSecretPath) &&
+			AwaChangeSet_HasValue(changeSet, pathStore.customerSecretPath))
+		{
+			AwaChangeSet_GetValueAsCStringPointer(changeSet, pathStore.customerSecretPath, &secret);
+			LOG(LOG_DBG, "Retrieved customerSecret");
+		}
+		else
+		{
+			LOG(LOG_DBG, "Failed to retrieve customerSecret");
+		}
+
+		if (AwaChangeSet_ContainsPath(changeSet, pathStore.rememberMeTokenPath) &&
+			AwaChangeSet_HasValue(changeSet, pathStore.rememberMeTokenPath))
+		{
+			AwaChangeSet_GetValueAsCStringPointer(changeSet, pathStore.rememberMeTokenPath, &token);
+			LOG(LOG_DBG, "Retrieved rememberMeToken");
+		}
+		else
+		{
+			LOG(LOG_DBG, "Failed to retrieve rememberMeToken");
+		}
+
+		if (AwaChangeSet_ContainsPath(changeSet, pathStore.rememberMeTokenExpiryPath) &&
+			AwaChangeSet_HasValue(changeSet, pathStore.rememberMeTokenExpiryPath))
+		{
+			AwaChangeSet_GetValueAsIntegerPointer(changeSet, pathStore.rememberMeTokenExpiryPath,
+				&tokenExpiry);
+			LOG(LOG_DBG, "Retrieved rememberMeTokenExpiry");
+		}
+		else
+		{
+			LOG(LOG_DBG, "Failed to retrieve rememberMeTokenExpiry");
+		}
+
+		if ((url != NULL) && (key != NULL) && (secret != NULL) && (token != NULL) &&
+			(*tokenExpiry != 0))
+		{
+			LOG(LOG_INFO, "Provisioned");
+			isProvisioned = true;
+		}
+		else
+		{
+			LOG(LOG_INFO, "Not Provisioned yet");
+		}
+	}
+	else
+	{
+		LOG(LOG_ERR, "Invalid FlowAccess object changeset");
+	}
+}
+
+static bool ObserveDeviceFlowAccessObject(const AwaServerSession *session, const char *clientID,
+	AwaServerObserveOperation **flowAccessObjectChange,
+	AwaServerObservation **flowAccessObjectChangeObservation)
+{
+	if ((session == NULL) || (clientID == NULL))
+	{
+		LOG(LOG_ERR, "Null arguments to %s()", __func__);
+		return false;
+	}
+
+	if (!pathsMade)
+	{
+		if (!MakePaths())
+		{
+			LOG(LOG_ERR, "Failed to create paths");
+			return false;
+		}
+		pathsMade = true;
+	}
+
+	AwaError error = AwaError_Unspecified;
+	*flowAccessObjectChange = AwaServerObserveOperation_New(session);
+	if (*flowAccessObjectChange == NULL)
+	{
+		LOG(LOG_ERR, "Could not create new observe operation to subscribe to constrained \
+			device's FlowAccess object");
+		return false;
+	}
+
+	*flowAccessObjectChangeObservation = AwaServerObservation_New(clientID,
+		pathStore.flowAccessObjectPath, FlowAccessObjectUpdated, NULL);
+	if (*flowAccessObjectChangeObservation == NULL)
+	{
+		LOG(LOG_ERR, "Could not create new observation to subscribe to constrained device's \
+			FlowAccess object");
+		AwaServerObserveOperation_Free(flowAccessObjectChange);
+		*flowAccessObjectChange = NULL;
+		return false;
+	}
+
+	error = AwaServerObserveOperation_AddObservation(*flowAccessObjectChange,
+		*flowAccessObjectChangeObservation);
+	if (error == AwaError_Success)
+	{
+		error = AwaServerObserveOperation_Perform(*flowAccessObjectChange, COAP_TIMEOUT);
+		if (error == AwaError_Success)
+		{
+			LOG(LOG_INFO, "Subscribed to FlowAccess object");
+			return true;
+		}
+		else
+		{
+			LOG(LOG_ERR, "Error failed to observe client FlowAccess object\nerror: %s",
+				AwaError_ToString(error));
+		}
+	}
+	else
+	{
+		LOG(LOG_ERR, "Error failed to add observation to observe client FlowAccess operation \
+			\nerror: %s", AwaError_ToString(error));
+	}
+
+	AwaServerObservation_Free(flowAccessObjectChangeObservation);
+	*flowAccessObjectChangeObservation = NULL;
+	AwaServerObserveOperation_Free(flowAccessObjectChange);
+	*flowAccessObjectChange = NULL;
+	return false;
+}
+
+static bool RemoveDeviceObservations(const char *clientID,
+	AwaServerObserveOperation **flowAccessObjectChange,
+	AwaServerObservation **flowAccessObjectChangeObservation)
+{
+	bool result = false;
+	if ((clientID == NULL) ||
+		(flowAccessObjectChange == NULL) ||
+		(flowAccessObjectChangeObservation == NULL))
+	{
+		LOG(LOG_ERR, "Null arguments to %s()", __func__);
+		return false;
+	}
+
+	AwaError error = AwaError_Unspecified;
+	AwaServerObservation_Free(flowAccessObjectChangeObservation);
+	*flowAccessObjectChangeObservation = NULL;
+
+	AwaServerObservation *cancelObservation = AwaServerObservation_New(clientID,
+		pathStore.flowAccessObjectPath, FlowAccessObjectUpdated, NULL);
+	if (cancelObservation != NULL)
+	{
+		error = AwaServerObserveOperation_AddCancelObservation(*flowAccessObjectChange,
+			cancelObservation);
+		if (error == AwaError_Success)
+		{
+			error = AwaServerObserveOperation_Perform(*flowAccessObjectChange, COAP_TIMEOUT);
+			if (error == AwaError_Success)
+			{
+				result = true;
+			}
+			else
+			{
+				LOG(LOG_ERR, "Failed to cancel observation of constrained device's FlowAccess \
+					object\nerror: %s", AwaError_ToString(error));
+			}
+		}
+		else
+		{
+			LOG(LOG_ERR, "Failed to add cancel observation of constrained device's FlowAccess \
+				object\nerror: %s", AwaError_ToString(error));
+		}
+		AwaServerObservation_Free(&cancelObservation);
+	}
+	else
+	{
+		LOG(LOG_ERR, "Couldn't create a cancel observation for constrained device's FlowAccess \
+			object");
+	}
+
+	AwaServerObserveOperation_Free(flowAccessObjectChange);
+	*flowAccessObjectChange = NULL;
+
+	return result;
+}
+
 static bool WriteProvisioningInformationToDevice (const AwaServerSession *session,
 	const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID)
 {
 	bool result = false;
 	AwaError error = AwaError_Success;
-	AwaServerWriteOperation * writeOp = AwaServerWriteOperation_New(session,
+	AwaServerWriteOperation *writeOp = AwaServerWriteOperation_New(session,
 		AwaWriteMode_Update);
 	if (writeOp != NULL)
 	{
@@ -355,12 +579,14 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
 	return result;
 }
 
-static bool PollConstrainedDevice(AwaServerSession *session, const char *clientID)
+static bool WaitForNotification(AwaServerSession *session)
 {
 	int timeout = POLLING_TIMEOUT_SECONDS;
 	while (timeout-- != 0)
 	{
-		if (IsDeviceProvisioned(session, clientID))
+		AwaServerSession_Process(session, COAP_TIMEOUT);
+		AwaServerSession_DispatchCallbacks(session);
+		if (isProvisioned)
 		{
 			return true;
 		}
@@ -425,15 +651,29 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char*fcap
 		}
 		else
 		{
+			AwaServerObserveOperation *flowAccessObjectChange = NULL;
+			AwaServerObservation *flowAccessObjectChangeObservation = NULL;
 			LOG(LOG_INFO, "Provisioning constrained device");
-			if (!WriteProvisioningInformationToDevice(serverSession, clientID, fcap, deviceType,
-				licenseeID))
+			isProvisioned = false;
+
+			if (ObserveDeviceFlowAccessObject(serverSession, clientID, &flowAccessObjectChange,
+				&flowAccessObjectChangeObservation))
 			{
-				LOG(LOG_ERR, "Writing of device provisioning information failed");
+				if (!WriteProvisioningInformationToDevice(serverSession, clientID, fcap,
+				deviceType, licenseeID))
+				{
+					LOG(LOG_ERR, "Writing of device provisioning information failed");
+				}
+				else if (WaitForNotification(serverSession))
+				{
+					result = PROVISION_OK;
+				}
+				RemoveDeviceObservations(clientID, &flowAccessObjectChange,
+					&flowAccessObjectChangeObservation);
 			}
-			else if (PollConstrainedDevice(serverSession, clientID))
+			else
 			{
-				result = PROVISION_OK;
+				LOG(LOG_ERR, "Failed to observe device flow access object");
 			}
 		}
 	}
