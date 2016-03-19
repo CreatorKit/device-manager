@@ -44,6 +44,7 @@
 #define IPC_TIMEOUT         (1000)
 #define SLEEP_COUNT         (2)
 #define OBJECT_INSTANCE_ID  (0)
+#define DEVICE_ID_SIZE      (16)
 #define ARRAY_SIZE(arr)     (sizeof(arr)/sizeof(arr[0]))
 
 #define SERVER_ADDRESS              "127.0.0.1"
