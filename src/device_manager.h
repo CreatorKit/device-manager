@@ -29,12 +29,12 @@
  */
 
 /**
- * @file flow_device_manager.h
- * @brief Header file for exposing flow device manager functions.
+ * @file device_manager.h
+ * @brief Header file for exposing device manager functions.
  */
 
-#ifndef FLOW_DEVICE_MANAGER_H
-#define FLOW_DEVICE_MANAGER_H
+#ifndef DEVICE_MANAGER_H
+#define DEVICE_MANAGER_H
 
 #include <stdbool.h>
 #include <json.h>
@@ -138,4 +138,4 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fca
  */
 bool IsConstrainedDeviceProvisioned(const char* clientID);
 
-#endif	/* FLOW_DEVICE_MANAGER_H */
+#endif	/* DEVICE_MANAGER_H */

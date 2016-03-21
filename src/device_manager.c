@@ -29,7 +29,7 @@
  */
 
 /**
- * @file flow_device_manager.c
+ * @file device_manager.c
  * @brief Provides provisioning operations.
  */
 
@@ -43,7 +43,7 @@
 #include <unistd.h>
 #include "awa/common.h"
 #include "awa/client.h"
-#include "flow_device_manager.h"
+#include "device_manager.h"
 #include "fdm_register.h"
 #include "fdm_subscribe.h"
 #include "fdm_licensee_verification.h"
