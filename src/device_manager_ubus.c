@@ -29,7 +29,7 @@
  */
 
 /**
- * @file flow_device_manager_ubus.c
+ * @file device_manager_ubus.c
  * @brief Provides provisioning operations.
  */
 
@@ -42,7 +42,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "flow_device_manager.h"
+#include "device_manager.h"
 #include "fdm_log.h"
 
 /***************************************************************************************************

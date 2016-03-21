@@ -31,7 +31,7 @@
 #ifndef FDM_PROVISION_CONSTRAINED_H
 #define FDM_PROVISION_CONSTRAINED_H
 
-#include "flow_device_manager.h"
+#include "device_manager.h"
 #include "awa/server.h"
 
 /**

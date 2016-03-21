@@ -47,7 +47,7 @@
 #include <string.h>
 #include "awa/common.h"
 #include "awa/server.h"
-#include "flow_device_manager.h"
+#include "device_manager.h"
 #include "fdm_common.h"
 #include "fdm_log.h"
 #include "fdm_server_session.h"

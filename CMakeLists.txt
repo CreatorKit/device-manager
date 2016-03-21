@@ -2,14 +2,14 @@
 ####################
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6.2)
 
-PROJECT(flow_device_manager)
+PROJECT(device_manager)
 # This will be extended to take the version from SCM
 # Version config can be simplified from 3.0+
-SET(flow_device_manager_VERSION_MAJOR 0)
-SET(flow_device_manager_VERSION_MINOR 3)
-SET(flow_device_managern_VERSION_PATCH 0)
-SET(flow_device_manager_VERSION
-    ${flow_device_manager_VERSION_MAJOR}.${flow_device_manager_VERSION_MINOR}.${flow_device_manager_VERSION_PATCH})
+SET(device_manager_VERSION_MAJOR 0)
+SET(device_manager_VERSION_MINOR 3)
+SET(device_manager_VERSION_PATCH 0)
+SET(device_manager_VERSION
+    ${device_manager_VERSION_MAJOR}.${device_manager_VERSION_MINOR}.${device_manager_VERSION_PATCH})
 
 # Options
 ###################
