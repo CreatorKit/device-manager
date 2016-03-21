@@ -102,6 +102,12 @@ static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
 					AwaResourceOperations_ReadWrite, 0);
 				break;
 
+			case AwaResourceType_Time:
+				error = AwaObjectDefinition_AddResourceDefinitionAsTime(awaObject,
+					resource->id, resource->name, resource->isMandatory,
+					AwaResourceOperations_ReadWrite, 0);
+				break;
+
 			case AwaResourceType_Opaque:
 				error = AwaObjectDefinition_AddResourceDefinitionAsOpaque(awaObject,
 					resource->id, resource->name, resource->isMandatory,
@@ -290,6 +296,7 @@ static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *res
 {
 	AwaInteger *intValue;
 	AwaOpaque *opaqueValue;
+	AwaTime *timeValue;
 	AwaError error;
 
 	if (handler == NULL || resourcePath == NULL || value == NULL)
@@ -317,6 +324,11 @@ static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *res
 		case AwaResourceType_Integer:
 			intValue = value;
 			error = AwaClientSetOperation_AddValueAsInteger(handler, resourcePath, *intValue);
+			break;
+
+		case AwaResourceType_Time:
+			timeValue = value;
+			error = AwaClientSetOperation_AddValueAsTime(handler, resourcePath, *timeValue);
 			break;
 
 		case AwaResourceType_Opaque:
@@ -548,6 +560,7 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
 {
 	const char *value;
 	const AwaInteger *intValue;
+	const AwaTime *timeValue;
 	AwaOpaque opaqueValue;
 	unsigned int i, j, k, resCount = 0;
 	unsigned char *opaqueData;
@@ -650,6 +663,15 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
 					{
 						sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name,
 							*intValue);
+					}
+					break;
+
+				case AwaResourceType_Time:
+					if ((error = AwaClientGetResponse_GetValueAsTimePointer(response,
+						resourcePath, &timeValue)) == AwaError_Success)
+					{
+						sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name,
+							*timeValue);
 					}
 					break;
 

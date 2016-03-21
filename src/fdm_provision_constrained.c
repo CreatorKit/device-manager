@@ -153,7 +153,7 @@ bool IsDeviceProvisioned(const AwaServerSession *session, const char *clientID)
 	AwaError error = AwaError_Unspecified;
 	bool result = false;
 	const char * tempStr = NULL;
-	const AwaInteger *tempTimePtr = NULL;
+	const AwaTime *tempTimePtr = NULL;
 
 	if (!pathsMade)
 	{
@@ -233,7 +233,7 @@ bool IsDeviceProvisioned(const AwaServerSession *session, const char *clientID)
 		goto read_fail;
 	}
 
-	error = AwaServerReadResponse_GetValueAsIntegerPointer(readResponse,
+	error = AwaServerReadResponse_GetValueAsTimePointer(readResponse,
 		pathStore.rememberMeTokenExpiryPath, &tempTimePtr);
 	if (error != AwaError_Success || *tempTimePtr == 0)
 	{
@@ -334,7 +334,7 @@ static void FlowAccessObjectUpdated(const AwaChangeSet *changeSet, void *context
 		}
 
 		const char *url=NULL, *key=NULL, *secret=NULL, *token=NULL;
-		const AwaInteger *tokenExpiry = NULL;
+		const AwaTime *tokenExpiry = NULL;
 		if (AwaChangeSet_ContainsPath(changeSet, pathStore.flowCloudUrlPath) &&
 			AwaChangeSet_HasValue(changeSet, pathStore.flowCloudUrlPath))
 		{
@@ -382,7 +382,7 @@ static void FlowAccessObjectUpdated(const AwaChangeSet *changeSet, void *context
 		if (AwaChangeSet_ContainsPath(changeSet, pathStore.rememberMeTokenExpiryPath) &&
 			AwaChangeSet_HasValue(changeSet, pathStore.rememberMeTokenExpiryPath))
 		{
-			AwaChangeSet_GetValueAsIntegerPointer(changeSet, pathStore.rememberMeTokenExpiryPath,
+			AwaChangeSet_GetValueAsTimePointer(changeSet, pathStore.rememberMeTokenExpiryPath,
 				&tokenExpiry);
 			LOG(LOG_DBG, "Retrieved rememberMeTokenExpiry");
 		}
@@ -543,37 +543,35 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
 	{
 		if (!IsFlowObjectInstancePresent(session, clientID))
 		{
-			error = AwaServerWriteOperation_CreateObjectInstance(writeOp,
-				pathStore.flowObjectInstancePath);
+			AwaServerWriteOperation_CreateObjectInstance(writeOp, pathStore.flowObjectInstancePath);
 		}
+
+		error = AwaServerWriteOperation_AddValueAsCString(writeOp,
+			pathStore.fcapPath, fcapCode);
 		if (error == AwaError_Success)
 		{
 			error = AwaServerWriteOperation_AddValueAsCString(writeOp,
-				pathStore.fcapPath, fcapCode);
+				pathStore.deviceTypePath, deviceType);
+		}
+		if (error == AwaError_Success)
+		{
+			error = AwaServerWriteOperation_AddValueAsInteger(writeOp,
+				pathStore.licenseeIDPath, licenseeID);
+		}
+		if (error == AwaError_Success)
+		{
+			error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
 			if (error == AwaError_Success)
 			{
-				error = AwaServerWriteOperation_AddValueAsCString(writeOp,
-					pathStore.deviceTypePath, deviceType);
-			}
-			if (error == AwaError_Success)
-			{
-				error = AwaServerWriteOperation_AddValueAsInteger(writeOp,
-					pathStore.licenseeIDPath, licenseeID);
-			}
-			if (error == AwaError_Success)
-			{
-				error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
-				if (error == AwaError_Success)
-				{
-					result = true;
-				}
-			}
-			else
-			{
-				LOG(LOG_ERR, "Failed to create write request\nerror: %s",
-					AwaError_ToString(error));
+				result = true;
 			}
 		}
+		else
+		{
+			LOG(LOG_ERR, "Failed to create write request\nerror: %s",
+				AwaError_ToString(error));
+		}
+
 		AwaServerWriteOperation_Free(&writeOp);
 	}
 	return result;
