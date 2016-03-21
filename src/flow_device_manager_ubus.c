@@ -66,6 +66,7 @@ enum {
 	ARG_CONSTRAINED_DEVICE_TYPE,
 	ARG_CONSTRAINED_LICENSEE_ID,
 	ARG_CONSTRAINED_FCAP,
+	ARG_CONSTRAINED_PARENT_ID,
 	PROVISION_CONSTRAINED_DEVICE_MAX
 };
 
@@ -110,7 +111,8 @@ static const struct blobmsg_policy
 	[ARG_CONSTRAINED_CLIENT_ID] = {.name = "client_id", .type = BLOBMSG_TYPE_STRING},
 	[ARG_CONSTRAINED_DEVICE_TYPE] = {.name = "device_type", .type = BLOBMSG_TYPE_STRING},
 	[ARG_CONSTRAINED_LICENSEE_ID] = {.name = "licensee_id", .type = BLOBMSG_TYPE_INT32},
-	[ARG_CONSTRAINED_FCAP] = {.name = "fcap", .type = BLOBMSG_TYPE_STRING}
+	[ARG_CONSTRAINED_FCAP] = {.name = "fcap", .type = BLOBMSG_TYPE_STRING},
+	[ARG_CONSTRAINED_PARENT_ID] = {.name = "parent_id", .type = BLOBMSG_TYPE_STRING}
 };
 
 /** IsConstrainedDeviceProvisioned arguments and their type. */
@@ -250,18 +252,21 @@ static int ProvisionConstrainedDeviceHandler(struct ubus_context *ctx, struct ub
 	blobmsg_parse(provisionConstrainedDevicePolicy, PROVISION_CONSTRAINED_DEVICE_MAX, args,
 		blob_data(msg), blob_len(msg));
 	if (!args[ARG_CONSTRAINED_DEVICE_TYPE] || !args[ARG_CONSTRAINED_LICENSEE_ID] ||
-		!args[ARG_CONSTRAINED_CLIENT_ID] || !args[ARG_CONSTRAINED_FCAP])
+		!args[ARG_CONSTRAINED_CLIENT_ID] || !args[ARG_CONSTRAINED_FCAP] ||
+		!args[ARG_CONSTRAINED_PARENT_ID])
 		return UBUS_STATUS_INVALID_ARGUMENT;
 
 	char *deviceType = blobmsg_get_string(args[ARG_CONSTRAINED_DEVICE_TYPE]);
 	int licenseeID = blobmsg_get_u32(args[ARG_CONSTRAINED_LICENSEE_ID]);
 	char *clientID = blobmsg_get_string(args[ARG_CONSTRAINED_CLIENT_ID]);
 	char *fcap = blobmsg_get_string(args[ARG_CONSTRAINED_FCAP]);
+	char *parentID = blobmsg_get_string(args[ARG_CONSTRAINED_PARENT_ID]);
 
-	if (!deviceType || !clientID || !fcap)
+	if (!deviceType || !clientID || !fcap || !parentID)
 		return UBUS_STATUS_UNKNOWN_ERROR;
 
-	ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID);
+	ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID,
+		parentID);
 
 	blob_buf_init(&b, 0);
 	blobmsg_add_u32(&b, "status", status);
