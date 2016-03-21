@@ -123,12 +123,13 @@ void GetClientList(json_object *respObj);
  * @param[in] fcap FCAP code
  * @param[in] deviceType registered device type
  * @param[in] licenseeID Licensee ID.
+ * @param[in] parentID Device ID of Gateway device.
  * @return 0 for PROVISION_OK
            1 for PROVISION_FAIL
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fcap,
-	const char *deviceType, int licenseeID);
+	const char *deviceType, int licenseeID, const char *parentID);
 
 /**
  * @brief Check if constrained device is provisioned or not
