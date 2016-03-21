@@ -543,37 +543,35 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
 	{
 		if (!IsFlowObjectInstancePresent(session, clientID))
 		{
-			error = AwaServerWriteOperation_CreateObjectInstance(writeOp,
-				pathStore.flowObjectInstancePath);
+			AwaServerWriteOperation_CreateObjectInstance(writeOp, pathStore.flowObjectInstancePath);
 		}
+
+		error = AwaServerWriteOperation_AddValueAsCString(writeOp,
+			pathStore.fcapPath, fcapCode);
 		if (error == AwaError_Success)
 		{
 			error = AwaServerWriteOperation_AddValueAsCString(writeOp,
-				pathStore.fcapPath, fcapCode);
+				pathStore.deviceTypePath, deviceType);
+		}
+		if (error == AwaError_Success)
+		{
+			error = AwaServerWriteOperation_AddValueAsInteger(writeOp,
+				pathStore.licenseeIDPath, licenseeID);
+		}
+		if (error == AwaError_Success)
+		{
+			error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
 			if (error == AwaError_Success)
 			{
-				error = AwaServerWriteOperation_AddValueAsCString(writeOp,
-					pathStore.deviceTypePath, deviceType);
-			}
-			if (error == AwaError_Success)
-			{
-				error = AwaServerWriteOperation_AddValueAsInteger(writeOp,
-					pathStore.licenseeIDPath, licenseeID);
-			}
-			if (error == AwaError_Success)
-			{
-				error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
-				if (error == AwaError_Success)
-				{
-					result = true;
-				}
-			}
-			else
-			{
-				LOG(LOG_ERR, "Failed to create write request\nerror: %s",
-					AwaError_ToString(error));
+				result = true;
 			}
 		}
+		else
+		{
+			LOG(LOG_ERR, "Failed to create write request\nerror: %s",
+				AwaError_ToString(error));
+		}
+
 		AwaServerWriteOperation_Free(&writeOp);
 	}
 	return result;
