@@ -103,7 +103,7 @@ const OBJECT_T flowAccessObject =
 		{ FlowAccessResourceId_RememberMeToken, "RememberMeToken", AwaResourceType_String, false,
 			true },
 		{ FlowAccessResourceId_RememberMeTokenExpiry, "RememberMeTokenExpiry",
-			AwaResourceType_Integer, false, true }
+			AwaResourceType_Time, false, true }
 	}
 };
 
