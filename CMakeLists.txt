@@ -6,7 +6,7 @@ PROJECT(device_manager)
 # This will be extended to take the version from SCM
 # Version config can be simplified from 3.0+
 SET(device_manager_VERSION_MAJOR 0)
-SET(device_manager_VERSION_MINOR 3)
+SET(device_manager_VERSION_MINOR 9)
 SET(device_manager_VERSION_PATCH 0)
 SET(device_manager_VERSION
     ${device_manager_VERSION_MAJOR}.${device_manager_VERSION_MINOR}.${device_manager_VERSION_PATCH})

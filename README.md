@@ -7,6 +7,11 @@ Currently it can be used to :
 - Check if the constrained device is provisioned or not
 - List the constrained devices connected to the local server
 
+## Revision History
+| Revision  | Changes from previous revision |
+| :----     | :------------------------------|
+| 0.9.0     | External Beta Trial Release    |
+
 ## Prerequisites
 Prior to running device manager, make sure that:
 - Awalwm2m client daemon(awa_clientd) is running.
