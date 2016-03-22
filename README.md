@@ -1,2 +1,2 @@
-# flow_device_manager
-flow device manager application
+# device-manager
+device-manager application
