@@ -61,6 +61,8 @@
 
 #define COAP_TIMEOUT 10000
 
+#define WRITE_TIMEOUT 20000
+
 #define POLLING_TIMEOUT_SECONDS 30
 
 #define POLLING_SLEEP_SECONDS 2
@@ -587,10 +589,15 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
 		}
 		if (error == AwaError_Success)
 		{
-			error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
+			error = AwaServerWriteOperation_Perform(writeOp, clientID, WRITE_TIMEOUT);
 			if (error == AwaError_Success)
 			{
 				result = true;
+			}
+			else
+			{
+				LOG(LOG_ERR, "Failed to perform write operation\nerror: %s",
+					AwaError_ToString(error));
 			}
 		}
 		else
