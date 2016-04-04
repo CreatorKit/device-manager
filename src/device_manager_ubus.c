@@ -323,7 +323,7 @@ int main(int argc, char **argv)
 		UBUS_METHOD_NOARG("get_client_list", GetClientListHandler)
 	};
 	struct ubus_object_type flowDeviceManagerObjectType = \
-		UBUS_OBJECT_TYPE("flow_device_manager", flowDeviceManagerMethods);
+		UBUS_OBJECT_TYPE("device_manager", flowDeviceManagerMethods);
 	struct ubus_object ubusObject =
 	{
 		.type = &flowDeviceManagerObjectType,

@@ -23,7 +23,7 @@ Prior to running device manager, make sure that:
 ### Provisioning the gateway device:
 
 ```
-root@OpenWrt:/# ubus -t 60 call flow_device_manager provision_gateway_device '{"device_name":"MyCi40","device_type":"FlowGateway","licensee_id":7,"fcap":"XXXXXXXXXX", "licensee_secret":"XXXXXXXXXXXXXX"}'
+root@OpenWrt:/# ubus -t 60 call device_manager provision_gateway_device '{"device_name":"MyCi40","device_type":"FlowGateway","licensee_id":7,"fcap":"XXXXXXXXXX", "licensee_secret":"XXXXXXXXXXXXXX"}'
 {
         "provision_status": 0
 }
@@ -34,7 +34,7 @@ Status 2 : The device was already provisioned.
 
 ### Checking if the gateway device is provisioned or not
 ```
-root@OpenWrt:/# ubus call flow_device_manager is_gateway_device_provisioned
+root@OpenWrt:/# ubus call device_manager is_gateway_device_provisioned
 {
         "provision_status": false
 }
@@ -42,7 +42,7 @@ root@OpenWrt:/# ubus call flow_device_manager is_gateway_device_provisioned
 
 ### Listing the devices connected to the gateway device
 ```
-root@OpenWrt:/# ubus call flow_device_manager get_client_list
+root@OpenWrt:/# ubus call device_manager get_client_list
 {
         "clients": [
                 {
@@ -55,7 +55,7 @@ root@OpenWrt:/# ubus call flow_device_manager get_client_list
 
 ### Provisioning a constrained device:
 ```
-root@OpenWrt:/# ubus -t 60 call flow_device_manager provision_constrained_device '{"fcap":"XXXXXXXXXX", "client_id":"LedDevice", "licensee_id": 7, "device_type" : "FlowCreatorLED", "parent_id": "08 5A 24 DE A8 C2 0A 4B AB 24 4C F6 ED 5D 5F 62 "}'
+root@OpenWrt:/# ubus -t 60 call device_manager provision_constrained_device '{"fcap":"XXXXXXXXXX", "client_id":"LedDevice", "licensee_id": 7, "device_type" : "FlowCreatorLED", "parent_id": "08 5A 24 DE A8 C2 0A 4B AB 24 4C F6 ED 5D 5F 62 "}'
 {
         "status": 0
 }
@@ -64,7 +64,7 @@ root@OpenWrt:/# ubus -t 60 call flow_device_manager provision_constrained_device
 
 ### Checking if the constrained device is provisioned or not
 ```
-root@OpenWrt:/# ubus call flow_device_manager is_constrained_device_provisioned '{"client_id":"LedDevice"}'
+root@OpenWrt:/# ubus call device_manager is_constrained_device_provisioned '{"client_id":"LedDevice"}'
 {
         "provision_status": false
 }
