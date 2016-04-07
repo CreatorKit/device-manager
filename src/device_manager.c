@@ -80,10 +80,8 @@ const OBJECT_T flowObject =
         { FlowObjectResourceId_Description, "Description", AwaResourceType_String, false, false },
         { FlowObjectResourceId_Fcap, "FCAP", AwaResourceType_String, true, true },
         { FlowObjectResourceId_LicenseeId, "LicenseeID", AwaResourceType_Integer, true, true },
-        { FlowObjectResourceId_LicenseeChallenge, "LicenseeChallenge",
-            AwaResourceType_Opaque, false, false },
-        { FlowObjectResourceId_HashIterations, "HashIterations", AwaResourceType_Integer, false,
-            false },
+        { FlowObjectResourceId_LicenseeChallenge, "LicenseeChallenge", AwaResourceType_Opaque, false, false },
+        { FlowObjectResourceId_HashIterations, "HashIterations", AwaResourceType_Integer, false, false },
         { FlowObjectResourceId_LicenseeHash, "LicenseeHash", AwaResourceType_Opaque, false, false },
         { FlowObjectResourceId_Status, "Status", AwaResourceType_Integer, false, false }
     }
@@ -98,12 +96,9 @@ const OBJECT_T flowAccessObject =
     {
         { FlowAccessResourceId_Url, "URL", AwaResourceType_String, false, true },
         { FlowAccessResourceId_CustomerKey, "CustomerKey", AwaResourceType_String, false, true },
-        { FlowAccessResourceId_CustomerSecret, "CustomerSecret", AwaResourceType_String, false,
-            true },
-        { FlowAccessResourceId_RememberMeToken, "RememberMeToken", AwaResourceType_String, false,
-            true },
-        { FlowAccessResourceId_RememberMeTokenExpiry, "RememberMeTokenExpiry",
-            AwaResourceType_Time, false, true }
+        { FlowAccessResourceId_CustomerSecret, "CustomerSecret", AwaResourceType_String, false, true },
+        { FlowAccessResourceId_RememberMeToken, "RememberMeToken", AwaResourceType_String, false, true },
+        { FlowAccessResourceId_RememberMeTokenExpiry, "RememberMeTokenExpiry", AwaResourceType_Time, false, true }
     }
 };
 
@@ -115,10 +110,8 @@ static const OBJECT_T deviceObject =
 { "DeviceObject", Lwm2mObjectId_DeviceObject, 2,
     (RESOURCE_T [])
     {
-        { DeviceObjectResourceId_SerialNumber, "SerialNumber", AwaResourceType_String, false,
-            true },
-        { DeviceObjectResourceId_SoftwareVersion, "SoftwareVersion", AwaResourceType_String, false,
-            true }
+        { DeviceObjectResourceId_SerialNumber, "SerialNumber", AwaResourceType_String, false, true },
+        { DeviceObjectResourceId_SoftwareVersion, "SoftwareVersion", AwaResourceType_String, false, true }
     }
 };
 
@@ -161,7 +154,7 @@ void SetDebugLevel(unsigned int level)
 bool EstablishSession(void)
 {
     AwaError error;
-    bool success = false;
+    bool result = false;
 
     LOG(LOG_INFO, "Establish session with lwm2m client");
 
@@ -172,24 +165,22 @@ bool EstablishSession(void)
         return false;
     }
 
-    if ((error = AwaClientSession_SetIPCAsUDP(session, IPC_ADDRESS, IPC_PORT))
-        == AwaError_Success)
+    if ((error = AwaClientSession_SetIPCAsUDP(session, IPC_ADDRESS, IPC_PORT)) == AwaError_Success)
     {
         if ((error = AwaClientSession_Connect(session)) == AwaError_Success)
         {
-            success = true;
+            result = true;
         }
         else
         {
-            LOG(LOG_ERR, "Failed to connect session with lwm2m client\n"
-                "error: %s", AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to connect session with lwm2m client\nerror: %s", AwaError_ToString(error));
         }
     }
     else
     {
         LOG(LOG_ERR, "Failed to set IPC as UDP\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
 /**
@@ -232,8 +223,7 @@ static bool SaveFlowCloudAccessDetails()
     return true;
 }
 
-ProvisionStatus ProvisionGatewayDevice(const char *deviceName, const char *deviceType,
-    int licenseeID, const char *fcap, const char *licenseeSecret)
+ProvisionStatus ProvisionGatewayDevice(const char *deviceName, const char *deviceType, int licenseeID, const char *fcap, const char *licenseeSecret)
 {
     FlowSubscriptions subscriptions = {0};
     Verification verificationData;
@@ -326,6 +316,7 @@ ProvisionStatus ProvisionGatewayDevice(const char *deviceName, const char *devic
     {
         free(verificationData.challenge.Data);
     }
+
     if (verificationData.licenseeHash.Data != NULL)
     {
         free(verificationData.licenseeHash.Data);

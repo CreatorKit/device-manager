@@ -46,8 +46,7 @@
  * @param[in] verificationData Licensee verification data.
  * @return true for success otherwise false.
  */
-bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions,
-    Verification *verificationData);
+bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions, Verification *verificationData);
 
 /**
  * @brief Send a request to the Awa LWM2M Core to remove the Change Subscriptions for flow and

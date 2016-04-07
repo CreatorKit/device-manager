@@ -71,8 +71,7 @@ static void ListClients(const AwaServerSession *session, json_object *respObj)
     error = AwaServerListClientsOperation_Perform(operation, LIST_CLIENTS_OPERATION_TIMEOUT);
     if (error == AwaError_Success)
     {
-        AwaClientIterator *clientIterator =
-            AwaServerListClientsOperation_NewClientIterator(operation);
+        AwaClientIterator *clientIterator = AwaServerListClientsOperation_NewClientIterator(operation);
         if (clientIterator != NULL)
         {
             while(AwaClientIterator_Next(clientIterator))
@@ -82,8 +81,7 @@ static void ListClients(const AwaServerSession *session, json_object *respObj)
                 json_bool provisionStatus = IsDeviceProvisioned(session, clientID) ? 1 : 0;
                 json_object *clientObj = json_object_new_object();
                 json_object_object_add(clientObj, "clientId", json_object_new_string(clientID));
-                json_object_object_add(clientObj, "is_device_provisioned",
-                    json_object_new_boolean(provisionStatus));
+                json_object_object_add(clientObj, "is_device_provisioned", json_object_new_boolean(provisionStatus));
                 json_object_array_add(listObj, clientObj);
 
             }
@@ -96,8 +94,7 @@ static void ListClients(const AwaServerSession *session, json_object *respObj)
     }
     else
     {
-        LOG(LOG_ERR, "Failed to perform list clients operation\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to perform list clients operation\nerror: %s", AwaError_ToString(error));
     }
 
     if (AwaServerListClientsOperation_Free(&operation) != AwaError_Success)

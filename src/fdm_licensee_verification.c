@@ -90,8 +90,7 @@ static bool CalculateLicenseeHash(uint8_t hash[SHA256_HASH_LENGTH], const char *
     return true;
 }
 
-bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData,
-    const char *licenseeSecret)
+bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData, const char *licenseeSecret)
 {
     uint8_t licenseeHash[SHA256_HASH_LENGTH] = {0};
     char licenseeHashResourcePath[URL_PATH_SIZE] = {0};
@@ -118,19 +117,20 @@ bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *ve
     {
         free(verificationData->licenseeHash.Data);
     }
+
     verificationData->licenseeHash.Data = malloc(SHA256_HASH_LENGTH);
+
     if (verificationData->licenseeHash.Data != NULL)
     {
         memcpy(verificationData->licenseeHash.Data , licenseeHash, SHA256_HASH_LENGTH);
     }
+
     verificationData->licenseeHash.Size = SHA256_HASH_LENGTH;
 
     // Write the hash to the Flow object
-    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeHashResourcePath,
-            FlowObjectResourceId_LicenseeHash)) == AwaError_Success)
+    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeHashResourcePath, FlowObjectResourceId_LicenseeHash)) == AwaError_Success)
     {
-        if(!SetResource(session, licenseeHashResourcePath, (void *)&verificationData->licenseeHash,
-            AwaResourceType_Opaque))
+        if(!SetResource(session, licenseeHashResourcePath, (void *)&verificationData->licenseeHash, AwaResourceType_Opaque))
         {
             LOG(LOG_ERR, "Failed to set licensee hash");
             return false;
@@ -138,8 +138,7 @@ bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *ve
     }
     else
     {
-        LOG(LOG_ERR, "Failed to create licensee hash resource path\n"
-            "error: %s", AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to create licensee hash resource path\nerror: %s", AwaError_ToString(error));
         return false;
     }
     return true;

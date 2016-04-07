@@ -72,25 +72,23 @@ static void flowObjectCallback(const AwaChangeSet *changeSet, void *context)
     LOG(LOG_INFO, "Flow object updated");
 
     // Extract and store licensee challenge
-    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeChallengeResourcePath,
-        FlowObjectResourceId_LicenseeChallenge)) == AwaError_Success)
+    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeChallengeResourcePath, FlowObjectResourceId_LicenseeChallenge)) == AwaError_Success)
     {
         if (AwaChangeSet_ContainsPath(changeSet, licenseeChallengeResourcePath))
         {
             if ((error = AwaChangeSet_GetValueAsOpaque(changeSet, licenseeChallengeResourcePath,
-                &licenseeChallenge)) == AwaError_Success &&
-                licenseeChallenge.Data != NULL &&
-                licenseeChallenge.Size > 0)
+                &licenseeChallenge)) == AwaError_Success && licenseeChallenge.Data != NULL && licenseeChallenge.Size > 0)
             {
                 if (verificationData->challenge.Data != NULL)
                 {
                     free(verificationData->challenge.Data);
                 }
+
                 verificationData->challenge.Data = malloc(licenseeChallenge.Size);
+
                 if (verificationData->challenge.Data != NULL)
                 {
-                    memcpy(verificationData->challenge.Data, licenseeChallenge.Data,
-                        licenseeChallenge.Size);
+                    memcpy(verificationData->challenge.Data, licenseeChallenge.Data, licenseeChallenge.Size);
                     verificationData->challenge.Size = licenseeChallenge.Size;
                     verificationData->hasChallenge = true;
                 }
@@ -101,30 +99,25 @@ static void flowObjectCallback(const AwaChangeSet *changeSet, void *context)
             }
             else
             {
-                LOG(LOG_ERR, "Failed to get licensee challenge\nerror: %s",
-                    AwaError_ToString(error));
+                LOG(LOG_ERR, "Failed to get licensee challenge\nerror: %s", AwaError_ToString(error));
             }
         }
         else
         {
-            LOG(LOG_DBG, "Flow object change notification doesn't contain licensee challenge "
-                "resource");
+            LOG(LOG_DBG, "Flow object change notification doesn't contain licensee challenge resource");
         }
     }
     else
     {
-        LOG(LOG_DBG, "Failed to create licensee challenge resource path\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_DBG, "Failed to create licensee challenge resource path\nerror: %s", AwaError_ToString(error));
     }
 
-    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(hashIterationsResourcePath,
-        FlowObjectResourceId_HashIterations)) == AwaError_Success)
+    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(hashIterationsResourcePath, FlowObjectResourceId_HashIterations)) == AwaError_Success)
     {
         if (AwaChangeSet_ContainsPath(changeSet, hashIterationsResourcePath))
         {
             const AwaInteger *iterationsValue = NULL;
-            if (AwaChangeSet_GetValueAsIntegerPointer(changeSet, hashIterationsResourcePath,
-                &iterationsValue) == AwaError_Success)
+            if (AwaChangeSet_GetValueAsIntegerPointer(changeSet, hashIterationsResourcePath, &iterationsValue) == AwaError_Success)
             {
                 verificationData->iterations = *iterationsValue;
                 verificationData->hasIterations = true;
@@ -141,27 +134,23 @@ static void flowObjectCallback(const AwaChangeSet *changeSet, void *context)
     }
     else
     {
-        LOG(LOG_DBG, "Failed to create hash iterations resource path\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_DBG, "Failed to create hash iterations resource path\nerror: %s", AwaError_ToString(error));
     }
 
     // no errors yet, check to see if we have what we need for provisioning
-    if (verificationData->waitForServerResponse && verificationData->hasChallenge &&
-        verificationData->hasIterations && !done)
+    if (verificationData->waitForServerResponse && verificationData->hasChallenge && verificationData->hasIterations && !done)
     {
         verificationData->verifyLicensee = true;
-        done = true;    // do this step once, because setting an object that we are observing will
-                        // cause an infinite loop
+        done = true;    // do this step once, because setting an object that we are observing will cause an infinite loop
     }
 }
 
 /**
-* @brief Check whether ChangeSet contains specified resource and also whether that resource contains
-*        any value.
+* @brief Check whether ChangeSet contains specified resource and also whether that resource contains any value.
 * @param[in] changeSet A pointer to a valid ChangeSet.
 * @param[in] resourcePath The resource path with which to query the Get Response.
 * @return true for success otherwise false.
- */
+*/
 static bool HasResource(const AwaChangeSet *changeSet, const char *resourcePath)
 {
     if (changeSet == NULL || resourcePath == NULL)
@@ -170,8 +159,7 @@ static bool HasResource(const AwaChangeSet *changeSet, const char *resourcePath)
         return false;
     }
 
-    return (AwaChangeSet_ContainsPath(changeSet, resourcePath) &&
-        AwaChangeSet_HasValue(changeSet, resourcePath));
+    return (AwaChangeSet_ContainsPath(changeSet, resourcePath) && AwaChangeSet_HasValue(changeSet, resourcePath));
 }
 
 /**
@@ -209,8 +197,7 @@ static void flowAccessCallback(const AwaChangeSet *changeSet, void *context)
         (error = MAKE_FLOW_ACCESS_OBJECT_RESOURCE_PATH(tokenExpiryPath,
             FlowAccessResourceId_RememberMeTokenExpiry)) != AwaError_Success)
     {
-        LOG(LOG_ERR, "Failed to generate resource path for all Flow access resources\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to generate resource path for all Flow access resources\nerror: %s", AwaError_ToString(error));
         return;
     }
 
@@ -230,15 +217,14 @@ static void flowAccessCallback(const AwaChangeSet *changeSet, void *context)
     verificationData->isProvisionSuccess = true;
 }
 
-bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions,
-    Verification *verificationData)
+bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions, Verification *verificationData)
 {
     char flowObjectInstancePath[URL_PATH_SIZE] = {0};
     char flowAccessInstancePath[URL_PATH_SIZE] = {0};
     const AwaClientSubscribeResponse *response;
     const AwaPathResult *flowObjectSubscribeResult;
     const AwaPathResult *flowAccessSubscribeResult;
-    bool success = false;
+    bool result = false;
     AwaError error;
 
     if(session == NULL || subscriptions == NULL || verificationData == NULL)
@@ -260,16 +246,13 @@ bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscr
     // Subscribe to Flow and Flow access object change notifications and the specified callback
     // function will be fired on AwaClientSession_DispatchCallbacks if the subscribed entity has
     // changed since the session callbacks were last dispatched.
-    subscriptions->flowObjectChange = AwaClientChangeSubscription_New(flowObjectInstancePath,
-        flowObjectCallback, verificationData);
+    subscriptions->flowObjectChange = AwaClientChangeSubscription_New(flowObjectInstancePath, flowObjectCallback, verificationData);
     if (subscriptions->flowObjectChange == NULL)
     {
         LOG(LOG_ERR, "Failed to create flow subscription object");
         return false;
     }
-    subscriptions->flowAccessObjectChange  =
-        AwaClientChangeSubscription_New(flowAccessInstancePath, flowAccessCallback,
-            verificationData);
+    subscriptions->flowAccessObjectChange = AwaClientChangeSubscription_New(flowAccessInstancePath, flowAccessCallback, verificationData);
     if (subscriptions->flowAccessObjectChange == NULL)
     {
         LOG(LOG_ERR, "Failed to create flow access subscription object");
@@ -283,26 +266,19 @@ bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscr
         return false;
     }
 
-    if ((error = AwaClientSubscribeOperation_AddChangeSubscription(operation,
-            subscriptions->flowObjectChange)) == AwaError_Success &&
-        (error = AwaClientSubscribeOperation_AddChangeSubscription(operation,
-            subscriptions->flowAccessObjectChange)) == AwaError_Success)
+    if ((error = AwaClientSubscribeOperation_AddChangeSubscription(operation, subscriptions->flowObjectChange)) == AwaError_Success &&
+        (error = AwaClientSubscribeOperation_AddChangeSubscription(operation, subscriptions->flowAccessObjectChange)) == AwaError_Success)
     {
-        if ((error = AwaClientSubscribeOperation_Perform(operation, IPC_TIMEOUT))
-            == AwaError_Success)
+        if ((error = AwaClientSubscribeOperation_Perform(operation, IPC_TIMEOUT)) == AwaError_Success)
         {
             response = AwaClientSubscribeOperation_GetResponse(operation);
-            if (((flowObjectSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response,
-                flowObjectInstancePath)) != NULL) &&
-                ((flowAccessSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response,
-                flowAccessInstancePath)) != NULL))
+            if (((flowObjectSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response, flowObjectInstancePath)) != NULL) &&
+                ((flowAccessSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response, flowAccessInstancePath)) != NULL))
             {
-                if ((error = AwaPathResult_GetError(flowObjectSubscribeResult))
-                        == AwaError_Success &&
-                    (error = AwaPathResult_GetError(flowAccessSubscribeResult))
-                        == AwaError_Success)
+                if ((error = AwaPathResult_GetError(flowObjectSubscribeResult)) == AwaError_Success &&
+                    (error = AwaPathResult_GetError(flowAccessSubscribeResult)) == AwaError_Success)
                 {
-                    success = true;
+                    result = true;
                 }
                 else
                 {
@@ -312,14 +288,12 @@ bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscr
             }
             else
             {
-                LOG(LOG_ERR, "Failed to get flow object or flow access object path in subscribe "
-                    "operation response");
+                LOG(LOG_ERR, "Failed to get flow object or flow access object path in subscribe operation response");
             }
         }
         else
         {
-            LOG(LOG_ERR, "Failed to perform subscribe operation\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to perform subscribe operation\nerror: %s", AwaError_ToString(error));
         }
     }
     else
@@ -332,7 +306,7 @@ bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscr
     {
         LOG(LOG_ERR, "Failed to free subscribe operation\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
 void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions)
@@ -343,7 +317,7 @@ void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *su
     const AwaPathResult *flowAccessSubscribeResult;
     char flowObjectInstancePath[URL_PATH_SIZE];
     char flowAccessPath[URL_PATH_SIZE];
-    bool success = true;
+    bool result = true;
     AwaError error;
 
     if(session == NULL || subscriptions == NULL)
@@ -357,40 +331,32 @@ void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *su
     if ((error = MAKE_FLOW_OBJECT_INSTANCE_PATH(flowObjectInstancePath)) != AwaError_Success ||
         (error = MAKE_FLOW_ACCESS_OBJECT_PATH(flowAccessPath)) != AwaError_Success)
     {
-        LOG(LOG_ERR, "Failed to create path for flow object or flow access object\nerror: %s",
-            AwaError_ToString(error));
-        success = false;
+        LOG(LOG_ERR, "Failed to create path for flow object or flow access object\nerror: %s", AwaError_ToString(error));
+        result = false;
     }
 
-    if (success &&
-        ((operation = AwaClientSubscribeOperation_New(session)) == NULL))
+    if (result && ((operation = AwaClientSubscribeOperation_New(session)) == NULL))
     {
         LOG(LOG_ERR, "Failed to create subscribe operation from session");
-        success = false;
+        result = false;
     }
 
-    if (success &&
+    if (result &&
         (error = AwaClientSubscribeOperation_AddCancelChangeSubscription(operation,
         subscriptions->flowObjectChange)) == AwaError_Success &&
         (error = AwaClientSubscribeOperation_AddCancelChangeSubscription(operation,
         subscriptions->flowAccessObjectChange)) == AwaError_Success)
     {
-        if ((error = AwaClientSubscribeOperation_Perform(operation, IPC_TIMEOUT))
-            == AwaError_Success)
+        if ((error = AwaClientSubscribeOperation_Perform(operation, IPC_TIMEOUT)) == AwaError_Success)
         {
             response = AwaClientSubscribeOperation_GetResponse(operation);
-            if (((flowSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response,
-                flowObjectInstancePath)) != NULL) &&
-                (flowAccessSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response,
-                flowAccessPath)) != NULL)
+            if (((flowSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response, flowObjectInstancePath)) != NULL) &&
+                (flowAccessSubscribeResult = AwaClientSubscribeResponse_GetPathResult(response, flowAccessPath)) != NULL)
             {
-                if ((error = AwaPathResult_GetError(flowSubscribeResult))
-                        == AwaError_Success &&
-                    (error = AwaPathResult_GetError(flowAccessSubscribeResult))
-                        == AwaError_Success)
+                if ((error = AwaPathResult_GetError(flowSubscribeResult)) == AwaError_Success &&
+                    (error = AwaPathResult_GetError(flowAccessSubscribeResult)) == AwaError_Success)
                 {
-                    LOG(LOG_DBG, "Successfully cancelled subscription to flow and flow access "
-                        "update events");
+                    LOG(LOG_DBG, "Successfully cancelled subscription to flow and flow access update events");
                 }
                 else
                 {
@@ -400,14 +366,12 @@ void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *su
             }
             else
             {
-                LOG(LOG_ERR, "Failed to get flow object or flow acccess object path from subscribe "
-                    "operation response");
+                LOG(LOG_ERR, "Failed to get flow object or flow acccess object path from subscribe operation response");
             }
         }
         else
         {
-            LOG(LOG_ERR, "Failed to perform subscribe operation for flow object or flow access "
-            "object or both\nerror: %s", AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to perform subscribe operation for flow object or flow access object or both\nerror: %s", AwaError_ToString(error));
         }
     }
     else
@@ -419,21 +383,17 @@ void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *su
 
     if (subscriptions->flowObjectChange != NULL)
     {
-        if ((error = AwaClientChangeSubscription_Free(&subscriptions->flowObjectChange))
-            != AwaError_Success)
+        if ((error = AwaClientChangeSubscription_Free(&subscriptions->flowObjectChange)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to free flow subscription object\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to free flow subscription object\nerror: %s", AwaError_ToString(error));
         }
     }
 
     if (subscriptions->flowAccessObjectChange != NULL)
     {
-        if ((error = AwaClientChangeSubscription_Free(&subscriptions->flowAccessObjectChange))
-            != AwaError_Success)
+        if ((error = AwaClientChangeSubscription_Free(&subscriptions->flowAccessObjectChange)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to free flow access subscription object\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to free flow access subscription object\nerror: %s", AwaError_ToString(error));
         }
     }
 
@@ -441,8 +401,7 @@ void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *su
     {
         if ((error = AwaClientSubscribeOperation_Free(&operation)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to free subscribe operation\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to free subscribe operation\nerror: %s", AwaError_ToString(error));
         }
     }
 }

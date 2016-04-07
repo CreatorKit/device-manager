@@ -190,10 +190,8 @@ static int ProvisionGatewayDeviceHandler(struct ubus_context *ctx, struct ubus_o
     struct blob_attr *args[PROVISION_GATEWAY_DEVICE_MAX];
     struct blob_buf b = {0};
 
-    blobmsg_parse(provisionGatewayDevicePolicy, PROVISION_GATEWAY_DEVICE_MAX, args, blob_data(msg),
-        blob_len(msg));
-    if (!args[ARG_DEVICE_NAME] || !args[ARG_DEVICE_TYPE] || !args[ARG_LICENSEE_ID] ||
-        !args[ARG_FCAP] || !args[ARG_LICENSEE_SECRET])
+    blobmsg_parse(provisionGatewayDevicePolicy, PROVISION_GATEWAY_DEVICE_MAX, args, blob_data(msg), blob_len(msg));
+    if (!args[ARG_DEVICE_NAME] || !args[ARG_DEVICE_TYPE] || !args[ARG_LICENSEE_ID] || !args[ARG_FCAP] || !args[ARG_LICENSEE_SECRET])
         return UBUS_STATUS_INVALID_ARGUMENT;
 
     char *deviceName = blobmsg_get_string(args[ARG_DEVICE_NAME]);
@@ -205,8 +203,7 @@ static int ProvisionGatewayDeviceHandler(struct ubus_context *ctx, struct ubus_o
     if (!deviceName || !deviceType || !fcap || !licenseeSecret)
         return UBUS_STATUS_UNKNOWN_ERROR;
 
-    ProvisionStatus status = ProvisionGatewayDevice(deviceName, deviceType, licenseeID, fcap,
-        licenseeSecret);
+    ProvisionStatus status = ProvisionGatewayDevice(deviceName, deviceType, licenseeID, fcap, licenseeSecret);
 
     blob_buf_init(&b, 0);
     blobmsg_add_u32(&b, "provision_status", status);
@@ -249,8 +246,7 @@ static int ProvisionConstrainedDeviceHandler(struct ubus_context *ctx, struct ub
     struct blob_attr *args[PROVISION_CONSTRAINED_DEVICE_MAX];
     struct blob_buf b = {0};
 
-    blobmsg_parse(provisionConstrainedDevicePolicy, PROVISION_CONSTRAINED_DEVICE_MAX, args,
-        blob_data(msg), blob_len(msg));
+    blobmsg_parse(provisionConstrainedDevicePolicy, PROVISION_CONSTRAINED_DEVICE_MAX, args, blob_data(msg), blob_len(msg));
     if (!args[ARG_CONSTRAINED_DEVICE_TYPE] || !args[ARG_CONSTRAINED_LICENSEE_ID] ||
         !args[ARG_CONSTRAINED_CLIENT_ID] || !args[ARG_CONSTRAINED_FCAP] ||
         !args[ARG_CONSTRAINED_PARENT_ID])
@@ -265,8 +261,7 @@ static int ProvisionConstrainedDeviceHandler(struct ubus_context *ctx, struct ub
     if (!deviceType || !clientID || !fcap || !parentID)
         return UBUS_STATUS_UNKNOWN_ERROR;
 
-    ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID,
-        parentID);
+    ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID, parentID);
 
     blob_buf_init(&b, 0);
     blobmsg_add_u32(&b, "status", status);
@@ -282,8 +277,7 @@ static int IsConstrainedDeviceProvisionedHandler(struct ubus_context *ctx, struc
     struct blob_attr *args[IS_CONSTRAINED_DEVICE_PROVISIONED_MAX];
     struct blob_buf b = {0};
 
-    blobmsg_parse(isConstrainedDeviceProvisionedPolicy, IS_CONSTRAINED_DEVICE_PROVISIONED_MAX, args,
-        blob_data(msg), blob_len(msg));
+    blobmsg_parse(isConstrainedDeviceProvisionedPolicy, IS_CONSTRAINED_DEVICE_PROVISIONED_MAX, args, blob_data(msg), blob_len(msg));
     if (!args[ARG_CLIENT_ID])
         return UBUS_STATUS_INVALID_ARGUMENT;
     char *clientID = blobmsg_get_string(args[ARG_CLIENT_ID]);
@@ -313,17 +307,13 @@ int main(int argc, char **argv)
 
     struct ubus_method flowDeviceManagerMethods[] =
     {
-        UBUS_METHOD("provision_gateway_device", ProvisionGatewayDeviceHandler,
-            provisionGatewayDevicePolicy),
-        UBUS_METHOD("provision_constrained_device", ProvisionConstrainedDeviceHandler,
-            provisionConstrainedDevicePolicy),
-        UBUS_METHOD("is_constrained_device_provisioned", IsConstrainedDeviceProvisionedHandler,
-            isConstrainedDeviceProvisionedPolicy),
+        UBUS_METHOD("provision_gateway_device", ProvisionGatewayDeviceHandler, provisionGatewayDevicePolicy),
+        UBUS_METHOD("provision_constrained_device", ProvisionConstrainedDeviceHandler, provisionConstrainedDevicePolicy),
+        UBUS_METHOD("is_constrained_device_provisioned", IsConstrainedDeviceProvisionedHandler, isConstrainedDeviceProvisionedPolicy),
         UBUS_METHOD_NOARG("is_gateway_device_provisioned", IsGatewayDeviceProvisionedHandler),
         UBUS_METHOD_NOARG("get_client_list", GetClientListHandler)
     };
-    struct ubus_object_type flowDeviceManagerObjectType = \
-        UBUS_OBJECT_TYPE("device_manager", flowDeviceManagerMethods);
+    struct ubus_object_type flowDeviceManagerObjectType = UBUS_OBJECT_TYPE("device_manager", flowDeviceManagerMethods);
     struct ubus_object ubusObject =
     {
         .type = &flowDeviceManagerObjectType,

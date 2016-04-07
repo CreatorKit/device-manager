@@ -30,8 +30,7 @@
 
 /**
  * @file fdm_server_session.h
- * @brief Header file for exposing operations to establish and release sessions with Awa LWM2M
- *        server.
+ * @brief Header file for exposing operations to establish and release sessions with Awa LWM2M server.
  */
 
 #ifndef FDM_SERVER_SESSION_H

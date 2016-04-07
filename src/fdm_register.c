@@ -70,11 +70,10 @@
 static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
 {
     unsigned int i;
-    bool success = true;
+    bool result = true;
     RESOURCE_T *resource;
     AwaError error;
-    AwaObjectDefinition *awaObject = AwaObjectDefinition_New(object->id,
-        object->name, MIN_INSTANCES, MAX_INSTANCES);
+    AwaObjectDefinition *awaObject = AwaObjectDefinition_New(object->id, object->name, MIN_INSTANCES, MAX_INSTANCES);
 
     if (awaObject == NULL)
     {
@@ -115,8 +114,7 @@ static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
                 break;
 
             default:
-                LOG(LOG_ERR, "Unknown resource type found, can't be added to %s definition",
-                    object->name);
+                LOG(LOG_ERR, "Unknown resource type found, can't be added to %s definition", object->name);
                 error = AwaError_Unspecified;
                 break;
         }
@@ -125,12 +123,12 @@ static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
         {
             LOG(LOG_ERR, "Failed to add %s resource to %s object definition\n"
                 "error: %s", resource->name, object->name, AwaError_ToString(error));
-            success = false;
+            result = false;
             break;
         }
     }
 
-    if (!success)
+    if (!result)
     {
         AwaObjectDefinition_Free(&awaObject);
         return NULL;
@@ -139,12 +137,11 @@ static AwaObjectDefinition *CreateObjectDefinition(const OBJECT_T *object)
     return awaObject;
 }
 
-bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects,
-    unsigned int numObjects)
+bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects, unsigned int numObjects)
 {
     unsigned int i;
     unsigned int definitionCount = 0;
-    bool success = true;
+    bool result = true;
     AwaError error = AwaError_Success;
     const OBJECT_T *object;
 
@@ -176,15 +173,15 @@ bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects,
         if (awaObject == NULL)
         {
             LOG(LOG_ERR, "Failed to create %s definition", object->name);
-            success = false;
+            result = false;
             break;
         }
-        if ((error = AwaServerDefineOperation_Add(handler, awaObject))
-            != AwaError_Success)
+
+        if ((error = AwaServerDefineOperation_Add(handler, awaObject)) != AwaError_Success)
         {
             LOG(LOG_ERR, "Failed to add %s definition to define operation\n"
                 "error: %s", object->name, AwaError_ToString(error));
-            success = false;
+            result = false;
             AwaObjectDefinition_Free(&awaObject);
             break;
         }
@@ -192,31 +189,28 @@ bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects,
         AwaObjectDefinition_Free(&awaObject);
     }
 
-    if (success && definitionCount != 0)
+    if (result && definitionCount != 0)
     {
         if ((error = AwaServerDefineOperation_Perform(handler, IPC_TIMEOUT))
             != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to perform define operation\n"
-                "error: %s", AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to perform define operation\nerror: %s", AwaError_ToString(error));
+            result = false;
         }
     }
     if ((error = AwaServerDefineOperation_Free(&handler)) != AwaError_Success)
     {
-        LOG(LOG_WARN, "Failed to free define operation object\n"
-            "error: %s", AwaError_ToString(error));
+        LOG(LOG_WARN, "Failed to free define operation object\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
 
-bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
-    unsigned int numObjects)
+bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects, unsigned int numObjects)
 {
     unsigned int i;
     unsigned int definitionCount = 0;
-    bool success = true;
+    bool result = true;
     AwaError error = AwaError_Success;
     const OBJECT_T *object;
 
@@ -249,37 +243,33 @@ bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
         if (awaObject == NULL)
         {
             LOG(LOG_ERR, "Failed to create %s definition", object->name);
-            success = false;
+            result = false;
             break;
         }
 
-        if ((error = AwaClientDefineOperation_Add(handler, awaObject))
-            != AwaError_Success)
+        if ((error = AwaClientDefineOperation_Add(handler, awaObject)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to add %s definition to define operation\n"
-                "error: %s", object->name, AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to add %s definition to define operation\nerror: %s", object->name, AwaError_ToString(error));
+            result = false;
         }
         definitionCount++;
         AwaObjectDefinition_Free(&awaObject);
     }
 
-    if (success && definitionCount != 0)
+    if (result && definitionCount != 0)
     {
         if ((error = AwaClientDefineOperation_Perform(handler, IPC_TIMEOUT))
             != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to perform define operation\n"
-                "error: %s", AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to perform define operation\nerror: %s", AwaError_ToString(error));
+            result = false;
         }
     }
     if ((error = AwaClientDefineOperation_Free(&handler)) != AwaError_Success)
     {
-        LOG(LOG_WARN, "Failed to free define operation object\n"
-            "error: %s", AwaError_ToString(error));
+        LOG(LOG_WARN, "Failed to free define operation object\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
 /**
@@ -291,8 +281,7 @@ bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
  * @param[in] create_resource true if resource needs to be created
  * @return true for success otherwise false.
  */
-static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *resourcePath,
-    void *value, AwaResourceType type, bool create_resource)
+static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *resourcePath, void *value, AwaResourceType type, bool create_resource)
 {
     AwaInteger *intValue;
     AwaOpaque *opaqueValue;
@@ -319,8 +308,7 @@ static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *res
     switch (type)
     {
         case AwaResourceType_String:
-            error = AwaClientSetOperation_AddValueAsCString(handler, resourcePath,
-                (char *)value);
+            error = AwaClientSetOperation_AddValueAsCString(handler, resourcePath, (char *)value);
             break;
 
         case AwaResourceType_Integer:
@@ -345,18 +333,16 @@ static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *res
 
     if (error != AwaError_Success)
     {
-        LOG(LOG_ERR, "Failed to set value of %s\n"
-            "error: %s", resourcePath, AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to set value of %s\nerror: %s", resourcePath, AwaError_ToString(error));
         return false;
     }
     return true;
 }
 
-bool SetResource(AwaClientSession *session, const char *resourcePath, void *value,
-    AwaResourceType type)
+bool SetResource(AwaClientSession *session, const char *resourcePath, void *value, AwaResourceType type)
 {
     AwaError error;
-    bool success = false;
+    bool result = false;
 
     if (session == NULL || resourcePath == NULL || value == NULL)
     {
@@ -375,32 +361,28 @@ bool SetResource(AwaClientSession *session, const char *resourcePath, void *valu
 
     if (AddResourceToHandler(handler, resourcePath, value, type, true))
     {
-        if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT))
-            == AwaError_Success)
+        if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT)) == AwaError_Success)
         {
-            success = true;
+            result = true;
         }
         else
         {
-            LOG(LOG_ERR, "Failed to perform set operation\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to perform set operation\nerror: %s", AwaError_ToString(error));
         }
     }
 
     if ((error = AwaClientSetOperation_Free(&handler)) != AwaError_Success)
     {
-        LOG(LOG_WARN, "Failed to free set operation handler\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_WARN, "Failed to free set operation handler\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
-bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
-    AwaObjectInstanceID objectInstanceId)
+bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId, AwaObjectInstanceID objectInstanceId)
 {
     const AwaClientGetResponse *response = NULL;
     char objectInstancePath[URL_PATH_SIZE] = {0};
-    bool success = false;
+    bool result = false;
     AwaError error;
 
     if (session == NULL)
@@ -411,11 +393,9 @@ bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
 
     LOG(LOG_DBG, "Checking whether object %d exist or not", objectId);
 
-    if ((error = AwaAPI_MakeObjectInstancePath(objectInstancePath, URL_PATH_SIZE, objectId,
-        objectInstanceId)) != AwaError_Success)
+    if ((error = AwaAPI_MakeObjectInstancePath(objectInstancePath, URL_PATH_SIZE, objectId, objectInstanceId)) != AwaError_Success)
     {
-        LOG(LOG_ERR, "Failed to generate path for %d object\nerror: %s", objectId,
-            AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to generate path for %d object\nerror: %s", objectId, AwaError_ToString(error));
         return false;
     }
 
@@ -426,18 +406,16 @@ bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
         return false;
     }
 
-    if ((error = AwaClientGetOperation_AddPath(handler, objectInstancePath))
-        == AwaError_Success)
+    if ((error = AwaClientGetOperation_AddPath(handler, objectInstancePath)) == AwaError_Success)
     {
-        if ((error = AwaClientGetOperation_Perform(handler, IPC_TIMEOUT))
-            == AwaError_Success)
+        if ((error = AwaClientGetOperation_Perform(handler, IPC_TIMEOUT)) == AwaError_Success)
         {
             response = AwaClientGetOperation_GetResponse(handler);
             if (response != NULL)
             {
                 if (AwaClientGetResponse_ContainsPath(response, objectInstancePath))
                 {
-                    success = true;
+                    result = true;
                 }
                 else
                 {
@@ -456,20 +434,17 @@ bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
     }
     else
     {
-        LOG(LOG_ERR, "Failed to add %d object path to get operation handler\nerror: %s", objectId,
-            AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to add %d object path to get operation handler\nerror: %s", objectId, AwaError_ToString(error));
     }
 
     if ((error = AwaClientGetOperation_Free(&handler)) != AwaError_Success)
     {
-        LOG(LOG_WARN, "Failed to free get operation handler\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_WARN, "Failed to free get operation handler\nerror: %s", AwaError_ToString(error));
     }
-    return success;
+    return result;
 }
 
-bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
-    const char *deviceType, int64_t licenseeID, const char *fcap)
+bool PopulateFlowObject(AwaClientSession *session, const char *deviceName, const char *deviceType, int64_t licenseeID, const char *fcap)
 {
     char objectInstancePath[URL_PATH_SIZE] = {0};
     char deviceNameResourcePath[URL_PATH_SIZE] = {0};
@@ -499,8 +474,7 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
         (error = MAKE_FLOW_OBJECT_RESOURCE_PATH(fcapResourcePath, FlowObjectResourceId_Fcap))
             != AwaError_Success))
     {
-        LOG(LOG_ERR, "Failed to generate all object and resource paths\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_ERR, "Failed to generate all object and resource paths\nerror: %s", AwaError_ToString(error));
         return false;
     }
 
@@ -514,11 +488,9 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
     if (!DoesObjectExist(session, Lwm2mObjectId_FlowObject, OBJECT_INSTANCE_ID))
     {
         LOG(LOG_DBG, "Flow object instance doesn't exist, so create it");
-        if ((error = AwaClientSetOperation_CreateObjectInstance(handler, objectInstancePath))
-            != AwaError_Success)
+        if ((error = AwaClientSetOperation_CreateObjectInstance(handler, objectInstancePath)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to create flow object instance\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to create flow object instance\nerror: %s", AwaError_ToString(error));
         }
         create_resource = true;
     }
@@ -536,8 +508,7 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
         AddResourceToHandler(handler, licenseeIdResourcePath, &licenseeID,
             AwaResourceType_Integer, create_resource))
     {
-        if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT))
-            == AwaError_Success)
+        if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT)) == AwaError_Success)
         {
             status = true;
         }
@@ -548,20 +519,17 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
     }
     else
     {
-        LOG(LOG_ERR, "Failed to add flow object's resources(device name, device type, licensee id, "
-            "fcap) to set operation handler");
+        LOG(LOG_ERR, "Failed to add flow object's resources(device name, device type, licensee id, fcap) to set operation handler");
     }
 
     if ((error = AwaClientSetOperation_Free(&handler)) != AwaError_Success)
     {
-        LOG(LOG_WARN, "Failed to free set operation handler\nerror: %s",
-            AwaError_ToString(error));
+        LOG(LOG_WARN, "Failed to free set operation handler\nerror: %s", AwaError_ToString(error));
     }
     return status;
 }
 
-unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
-    unsigned int numObjects, char strings[][MAX_STR_SIZE])
+unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[], unsigned int numObjects, char strings[][MAX_STR_SIZE])
 {
     const char *value;
     const AwaInteger *intValue;
@@ -572,7 +540,7 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
     char *offset;
     const OBJECT_T *object;
     RESOURCE_T *resource;
-    bool success = true;
+    bool result = true;
     AwaError error;
     char objectInstancePath[URL_PATH_SIZE];
     char resourcePath[URL_PATH_SIZE];
@@ -595,37 +563,32 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
         if ((error = AwaAPI_MakeObjectInstancePath(objectInstancePath, URL_PATH_SIZE,
             object->id, OBJECT_INSTANCE_ID)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to create path for %s object\nerror: %s", object->name,
-                AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to create path for %s object\nerror: %s", object->name, AwaError_ToString(error));
+            result = false;
             break;
         }
-        if ((error = AwaClientGetOperation_AddPath(operation, objectInstancePath))
-            != AwaError_Success)
+        if ((error = AwaClientGetOperation_AddPath(operation, objectInstancePath)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to add %s object path to get operation\nerror: %s", object->name,
-                AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to add %s object path to get operation\nerror: %s", object->name, AwaError_ToString(error));
+            result = false;
             break;
         }
-        if ((error = AwaClientGetOperation_Perform(operation, IPC_TIMEOUT))
-            != AwaError_Success)
+        if ((error = AwaClientGetOperation_Perform(operation, IPC_TIMEOUT)) != AwaError_Success)
         {
-            LOG(LOG_ERR, "Failed to perform get operation for %s object\nerror: %s", object->name,
-                AwaError_ToString(error));
-            success = false;
+            LOG(LOG_ERR, "Failed to perform get operation for %s object\nerror: %s", object->name, AwaError_ToString(error));
+            result = false;
             break;
         }
         if ((response = AwaClientGetOperation_GetResponse(operation)) == NULL)
         {
             LOG(LOG_ERR, "Failed to get response from get operation for %s object", object->name);
-            success = false;
+            result = false;
             break;
         }
         if (!AwaClientGetResponse_ContainsPath(response, objectInstancePath))
         {
             LOG(LOG_ERR, "Response doesn't contain %s object path", object->name);
-            success = false;
+            result = false;
             break;
         }
 
@@ -639,50 +602,42 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
             if ((error = AwaAPI_MakeResourcePath(resourcePath, URL_PATH_SIZE, object->id,
                 OBJECT_INSTANCE_ID, resource->id)) != AwaError_Success)
             {
-                LOG(LOG_ERR, "Failed to create path for %s resource\nerror: %s", resource->name,
-                    AwaError_ToString(error));
-                success = false;
+                LOG(LOG_ERR, "Failed to create path for %s resource\nerror: %s", resource->name, AwaError_ToString(error));
+                result = false;
                 break;
             }
             if (!AwaClientGetResponse_HasValue(response, resourcePath))
             {
-                LOG(LOG_ERR, "Get operation response doesn't contain path of %s resource",
-                    resource->name);
-                success = false;
+                LOG(LOG_ERR, "Get operation response doesn't contain path of %s resource", resource->name);
+                result = false;
                 break;
             }
 
             switch (resource->type)
             {
                 case AwaResourceType_String:
-                    if ((error = AwaClientGetResponse_GetValueAsCStringPointer(response,
-                        resourcePath, &value)) == AwaError_Success)
+                    if ((error = AwaClientGetResponse_GetValueAsCStringPointer(response, resourcePath, &value)) == AwaError_Success)
                     {
                         sprintf(strings[resCount++], "%s=\"%s\"", resource->name, value);
                     }
                     break;
 
                 case AwaResourceType_Integer:
-                    if ((error = AwaClientGetResponse_GetValueAsIntegerPointer(response,
-                        resourcePath, &intValue)) == AwaError_Success)
+                    if ((error = AwaClientGetResponse_GetValueAsIntegerPointer(response, resourcePath, &intValue)) == AwaError_Success)
                     {
-                        sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name,
-                            *intValue);
+                        sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name, *intValue);
                     }
                     break;
 
                 case AwaResourceType_Time:
-                    if ((error = AwaClientGetResponse_GetValueAsTimePointer(response,
-                        resourcePath, &timeValue)) == AwaError_Success)
+                    if ((error = AwaClientGetResponse_GetValueAsTimePointer(response, resourcePath, &timeValue)) == AwaError_Success)
                     {
-                        sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name,
-                            *timeValue);
+                        sprintf(strings[resCount++], "%s=\"%" PRId64 "\"", resource->name, *timeValue);
                     }
                     break;
 
                 case AwaResourceType_Opaque:
-                    if ((error = AwaClientGetResponse_GetValueAsOpaque(response, resourcePath,
-                        &opaqueValue)) == AwaError_Success)
+                    if ((error = AwaClientGetResponse_GetValueAsOpaque(response, resourcePath, &opaqueValue)) == AwaError_Success)
                     {
                         opaqueData = (unsigned char *)opaqueValue.Data;
                         offset = strings[resCount];
@@ -703,13 +658,12 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
             }
             if (error != AwaError_Success)
             {
-                LOG(LOG_ERR, "Failed to get %s resource value from response\nerror: %s",
-                    resource->name, AwaError_ToString(error));
-                success = false;
+                LOG(LOG_ERR, "Failed to get %s resource value from response\nerror: %s", resource->name, AwaError_ToString(error));
+                result = false;
                 break;
             }
         }
-        if (!success)
+        if (!result)
         {
             break;
         }
@@ -719,5 +673,5 @@ unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
     {
         LOG(LOG_WARN, "Failed to free get operation\nerror: %s", AwaError_ToString(error));
     }
-    return (success ? resCount : 0);
+    return (result ? resCount : 0);
 }
