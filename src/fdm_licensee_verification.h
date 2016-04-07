@@ -45,6 +45,6 @@
  * @return true for success otherwise false.
  */
 bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData,
-	const char *licenseeSecret);
+    const char *licenseeSecret);
 
-#endif	/* FDM_LICENSEE_VERIFICATION_H */
+#endif  /* FDM_LICENSEE_VERIFICATION_H */

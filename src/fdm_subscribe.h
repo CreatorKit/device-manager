@@ -47,7 +47,7 @@
  * @return true for success otherwise false.
  */
 bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions,
-	Verification *verificationData);
+    Verification *verificationData);
 
 /**
  * @brief Send a request to the Awa LWM2M Core to remove the Change Subscriptions for flow and
@@ -58,4 +58,4 @@ bool SubscribeToFlowObjects(AwaClientSession *session, FlowSubscriptions *subscr
  */
 void UnSubscribeFromFlowObjects(AwaClientSession *session, FlowSubscriptions *subscriptions);
 
-#endif	/* FDM_SUBSCRIBE_H */
+#endif  /* FDM_SUBSCRIBE_H */

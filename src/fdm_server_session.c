@@ -46,50 +46,50 @@
 
 AwaServerSession *Server_EstablishSession(const char *address, unsigned int port)
 {
-	// Initialise Device Management session
-	AwaServerSession *session;
-	session = AwaServerSession_New();
+    // Initialise Device Management session
+    AwaServerSession *session;
+    session = AwaServerSession_New();
 
-	if (session == NULL)
-	{
-		LOG(LOG_ERR, "Failed to create new server session");
-		return NULL;
-	}
+    if (session == NULL)
+    {
+        LOG(LOG_ERR, "Failed to create new server session");
+        return NULL;
+    }
 
-	if (AwaServerSession_SetIPCAsUDP(session, address, port) != AwaError_Success)
-	{
-		LOG(LOG_ERR, "Failed to set IPC as UDP for server session");
-		AwaServerSession_Free(&session);
-		return NULL;
-	}
+    if (AwaServerSession_SetIPCAsUDP(session, address, port) != AwaError_Success)
+    {
+        LOG(LOG_ERR, "Failed to set IPC as UDP for server session");
+        AwaServerSession_Free(&session);
+        return NULL;
+    }
 
 
-	if (AwaServerSession_Connect(session) == AwaError_Success)
-	{
-		LOG(LOG_INFO, "Session established with server");
-	}
-	else
-	{
-		LOG(LOG_ERR, "Failed to establish session with server");
-		AwaServerSession_Free(&session);
-	}
-	return session;
+    if (AwaServerSession_Connect(session) == AwaError_Success)
+    {
+        LOG(LOG_INFO, "Session established with server");
+    }
+    else
+    {
+        LOG(LOG_ERR, "Failed to establish session with server");
+        AwaServerSession_Free(&session);
+    }
+    return session;
 }
 
 void Server_ReleaseSession(AwaServerSession **session)
 {
-	if (session == NULL)
-	{
-		return;
-	}
+    if (session == NULL)
+    {
+        return;
+    }
 
-	if (AwaServerSession_Disconnect(*session) != AwaError_Success)
-	{
-		LOG(LOG_ERR, "Failed to disconnect session with server");
-	}
+    if (AwaServerSession_Disconnect(*session) != AwaError_Success)
+    {
+        LOG(LOG_ERR, "Failed to disconnect session with server");
+    }
 
-	if (AwaServerSession_Free(session) != AwaError_Success)
-	{
-		LOG(LOG_ERR, "Failed to free session with server");
-	}
+    if (AwaServerSession_Free(session) != AwaError_Success)
+    {
+        LOG(LOG_ERR, "Failed to free session with server");
+    }
 }

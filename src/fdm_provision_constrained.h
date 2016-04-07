@@ -46,7 +46,7 @@
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fcap,
-	const char *deviceType, int licenseeID, const char *parentID);
+    const char *deviceType, int licenseeID, const char *parentID);
 
 /**
  * @brief Poll the contents of the FlowAccessObject of the constrained device.
@@ -57,4 +57,4 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fca
  */
 bool IsDeviceProvisioned(const AwaServerSession *session, const char *clientID);
 
-#endif	/* FDM_PROVISION_CONSTRAINED_H */
+#endif  /* FDM_PROVISION_CONSTRAINED_H */

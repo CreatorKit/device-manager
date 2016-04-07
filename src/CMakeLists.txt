@@ -1,7 +1,7 @@
 # Add library targets
 #####################
 SET(SOURCES device_manager.c fdm_register.c fdm_subscribe.c fdm_licensee_verification.c
-	fdm_hmac.c fdm_server_session.c fdm_get_client_list.c fdm_provision_constrained.c)
+    fdm_hmac.c fdm_server_session.c fdm_get_client_list.c fdm_provision_constrained.c)
 ADD_LIBRARY(devicemanager SHARED ${SOURCES})
 
 INCLUDE(FindPkgConfig)

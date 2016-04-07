@@ -59,63 +59,63 @@
 //! \{
 static void ListClients(const AwaServerSession *session, json_object *respObj)
 {
-	AwaError error;
-	json_object *listObj = json_object_new_array();
-	AwaServerListClientsOperation *operation = AwaServerListClientsOperation_New(session);
-	if (operation == NULL)
-	{
-		LOG(LOG_ERR, "Failed to create new ListClientsOperation");
-		json_object_put(listObj);
-		return;
-	}
-	error = AwaServerListClientsOperation_Perform(operation, LIST_CLIENTS_OPERATION_TIMEOUT);
-	if (error == AwaError_Success)
-	{
-		AwaClientIterator *clientIterator =
-			AwaServerListClientsOperation_NewClientIterator(operation);
-		if (clientIterator != NULL)
-		{
-			while(AwaClientIterator_Next(clientIterator))
-			{
-				const char *clientID = AwaClientIterator_GetClientID(clientIterator);
+    AwaError error;
+    json_object *listObj = json_object_new_array();
+    AwaServerListClientsOperation *operation = AwaServerListClientsOperation_New(session);
+    if (operation == NULL)
+    {
+        LOG(LOG_ERR, "Failed to create new ListClientsOperation");
+        json_object_put(listObj);
+        return;
+    }
+    error = AwaServerListClientsOperation_Perform(operation, LIST_CLIENTS_OPERATION_TIMEOUT);
+    if (error == AwaError_Success)
+    {
+        AwaClientIterator *clientIterator =
+            AwaServerListClientsOperation_NewClientIterator(operation);
+        if (clientIterator != NULL)
+        {
+            while(AwaClientIterator_Next(clientIterator))
+            {
+                const char *clientID = AwaClientIterator_GetClientID(clientIterator);
 
-				json_bool provisionStatus = IsDeviceProvisioned(session, clientID) ? 1 : 0;
-				json_object *clientObj = json_object_new_object();
-				json_object_object_add(clientObj, "clientId", json_object_new_string(clientID));
-				json_object_object_add(clientObj, "is_device_provisioned",
-					json_object_new_boolean(provisionStatus));
-				json_object_array_add(listObj, clientObj);
+                json_bool provisionStatus = IsDeviceProvisioned(session, clientID) ? 1 : 0;
+                json_object *clientObj = json_object_new_object();
+                json_object_object_add(clientObj, "clientId", json_object_new_string(clientID));
+                json_object_object_add(clientObj, "is_device_provisioned",
+                    json_object_new_boolean(provisionStatus));
+                json_object_array_add(listObj, clientObj);
 
-			}
-			AwaClientIterator_Free(&clientIterator);
-		}
-		else
-		{
-			LOG(LOG_ERR, "Failed to create new list clients iterator");
-		}
-	}
-	else
-	{
-		LOG(LOG_ERR, "Failed to perform list clients operation\nerror: %s",
-			AwaError_ToString(error));
-	}
+            }
+            AwaClientIterator_Free(&clientIterator);
+        }
+        else
+        {
+            LOG(LOG_ERR, "Failed to create new list clients iterator");
+        }
+    }
+    else
+    {
+        LOG(LOG_ERR, "Failed to perform list clients operation\nerror: %s",
+            AwaError_ToString(error));
+    }
 
-	if (AwaServerListClientsOperation_Free(&operation) != AwaError_Success)
-	{
-		LOG(LOG_ERR, "Failed to free list clients operation");
-	}
+    if (AwaServerListClientsOperation_Free(&operation) != AwaError_Success)
+    {
+        LOG(LOG_ERR, "Failed to free list clients operation");
+    }
 
-	json_object_object_add(respObj, "clients", listObj);
+    json_object_object_add(respObj, "clients", listObj);
 }
 //! \}
 
 void GetClientList(json_object *respObj)
 {
-	AwaServerSession *session = NULL;
-	session = Server_EstablishSession(SERVER_ADDRESS, SERVER_PORT);
-	if (session != NULL)
-	{
-		ListClients(session, respObj);
-		Server_ReleaseSession(&session);
-	}
+    AwaServerSession *session = NULL;
+    session = Server_EstablishSession(SERVER_ADDRESS, SERVER_PORT);
+    if (session != NULL)
+    {
+        ListClients(session, respObj);
+        Server_ReleaseSession(&session);
+    }
 }

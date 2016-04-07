@@ -36,7 +36,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -45,8 +45,8 @@ extern "C" {
  */
 void CopyStringWithoutSpace(char *targetString, const char *sourceString);
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 
-#endif	/* UTILS_H */
+#endif  /* UTILS_H */

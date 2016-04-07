@@ -53,4 +53,4 @@ AwaServerSession *Server_EstablishSession(const char *address, unsigned int port
  */
 void Server_ReleaseSession(AwaServerSession **session);
 
-#endif	/* FDM_SERVER_SESSION_H */
+#endif  /* FDM_SERVER_SESSION_H */

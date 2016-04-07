@@ -50,7 +50,7 @@
  * @return true for success otherwise false.
  */
 bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
-	unsigned int numObjects);
+    unsigned int numObjects);
 
 /**
  * @brief Define objects and their resources and register them with Awa server.
@@ -60,7 +60,7 @@ bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
  * @return true for success otherwise false.
  */
 bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects,
-	unsigned int numObjects);
+    unsigned int numObjects);
 
 /**
  * @brief Check lwm2m object existence.
@@ -70,7 +70,7 @@ bool DefineObjectsAtServer(AwaServerSession *session, const OBJECT_T *objects,
  * @return true for success otherwise false.
  */
 bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
-	AwaObjectInstanceID objectInstanceId);
+    AwaObjectInstanceID objectInstanceId);
 
 /**
  * @brief Populate flow object with device type, licensee id and fcap.
@@ -82,7 +82,7 @@ bool DoesObjectExist(AwaClientSession *session, AwaObjectID objectId,
  * @return true for success otherwise false.
  */
 bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
-	const char *deviceType, int64_t licenseeID, const char *fcap);
+    const char *deviceType, int64_t licenseeID, const char *fcap);
 
 /**
  * @brief Set specified value to resource.
@@ -93,7 +93,7 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
  * @return true for success otherwise false.
  */
 bool SetResource(AwaClientSession *session, const char *resourcePath, void *value,
-	AwaResourceType type);
+    AwaResourceType type);
 
 /**
  * @brief Get value of specified object's resources for which wantToSave parameter is set.
@@ -104,6 +104,6 @@ bool SetResource(AwaClientSession *session, const char *resourcePath, void *valu
  * @return resource count for success and 0 for fail.
  */
 unsigned int GetResources(AwaClientSession *session, const OBJECT_T objects[],
-	unsigned int numObjects, char strings[][MAX_STR_SIZE]);
+    unsigned int numObjects, char strings[][MAX_STR_SIZE]);
 
-#endif	/* FDM_REGISTER_H */
+#endif  /* FDM_REGISTER_H */

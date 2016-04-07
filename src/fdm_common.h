@@ -52,65 +52,65 @@
 
 
 #define MAKE_RESOURCE_PATH(path, objectId, resourceId) \
-	AwaAPI_MakeResourcePath(path, URL_PATH_SIZE, objectId, OBJECT_INSTANCE_ID, resourceId)
+    AwaAPI_MakeResourcePath(path, URL_PATH_SIZE, objectId, OBJECT_INSTANCE_ID, resourceId)
 
 #define MAKE_FLOW_OBJECT_RESOURCE_PATH(path, resourceId) \
-	MAKE_RESOURCE_PATH(path, Lwm2mObjectId_FlowObject, resourceId)
+    MAKE_RESOURCE_PATH(path, Lwm2mObjectId_FlowObject, resourceId)
 
 #define MAKE_FLOW_ACCESS_OBJECT_RESOURCE_PATH(path, resourceId) \
-	MAKE_RESOURCE_PATH(path, Lwm2mObjectId_FlowAccess, resourceId)
+    MAKE_RESOURCE_PATH(path, Lwm2mObjectId_FlowAccess, resourceId)
 
 #define MAKE_FLOW_OBJECT_INSTANCE_PATH(path) \
-	AwaAPI_MakeObjectInstancePath(path, URL_PATH_SIZE, Lwm2mObjectId_FlowObject, \
-		OBJECT_INSTANCE_ID)
+    AwaAPI_MakeObjectInstancePath(path, URL_PATH_SIZE, Lwm2mObjectId_FlowObject, \
+        OBJECT_INSTANCE_ID)
 
 #define MAKE_FLOW_ACCESS_OBJECT_PATH(path) \
-	AwaAPI_MakeObjectPath(path, URL_PATH_SIZE, Lwm2mObjectId_FlowAccess)
+    AwaAPI_MakeObjectPath(path, URL_PATH_SIZE, Lwm2mObjectId_FlowAccess)
 //! \}
 
 /**
  * lwm2m object ids enum.
  */
 typedef enum {
-	Lwm2mObjectId_DeviceObject = 3,
-	Lwm2mObjectId_FlowObject = 20000,
-	Lwm2mObjectId_FlowAccess
+    Lwm2mObjectId_DeviceObject = 3,
+    Lwm2mObjectId_FlowObject = 20000,
+    Lwm2mObjectId_FlowAccess
 } Lwm2mObjectId;
 
 /**
  * Flow object resources enum.
  */
 typedef enum {
-	FlowObjectResourceId_DeviceId,
-	FlowObjectResourceId_ParentId,
-	FlowObjectResourceId_DeviceType,
-	FlowObjectResourceId_DeviceName,
-	FlowObjectResourceId_Description,
-	FlowObjectResourceId_Fcap,
-	FlowObjectResourceId_LicenseeId,
-	FlowObjectResourceId_LicenseeChallenge,
-	FlowObjectResourceId_HashIterations,
-	FlowObjectResourceId_LicenseeHash,
-	FlowObjectResourceId_Status
+    FlowObjectResourceId_DeviceId,
+    FlowObjectResourceId_ParentId,
+    FlowObjectResourceId_DeviceType,
+    FlowObjectResourceId_DeviceName,
+    FlowObjectResourceId_Description,
+    FlowObjectResourceId_Fcap,
+    FlowObjectResourceId_LicenseeId,
+    FlowObjectResourceId_LicenseeChallenge,
+    FlowObjectResourceId_HashIterations,
+    FlowObjectResourceId_LicenseeHash,
+    FlowObjectResourceId_Status
 } FlowObjectResourceId;
 
 /**
  * Flow access resources enum.
  */
 typedef enum {
-	FlowAccessResourceId_Url,
-	FlowAccessResourceId_CustomerKey,
-	FlowAccessResourceId_CustomerSecret,
-	FlowAccessResourceId_RememberMeToken,
-	FlowAccessResourceId_RememberMeTokenExpiry
+    FlowAccessResourceId_Url,
+    FlowAccessResourceId_CustomerKey,
+    FlowAccessResourceId_CustomerSecret,
+    FlowAccessResourceId_RememberMeToken,
+    FlowAccessResourceId_RememberMeTokenExpiry
 } FlowAccessResourceId;
 
 /**
  * Device object resources enum
  */
 typedef enum {
-	DeviceObjectResourceId_SerialNumber = 2,
-	DeviceObjectResourceId_SoftwareVersion = 19
+    DeviceObjectResourceId_SerialNumber = 2,
+    DeviceObjectResourceId_SoftwareVersion = 19
 } DeviceObjectResourceId;
 
 /**
@@ -118,13 +118,13 @@ typedef enum {
  */
 typedef struct
 {
-	//! \{
-	AwaResourceID id;
-	const char *name;
-	AwaResourceType type;
-	bool isMandatory;
-	bool wantToSave;
-	//! \}
+    //! \{
+    AwaResourceID id;
+    const char *name;
+    AwaResourceType type;
+    bool isMandatory;
+    bool wantToSave;
+    //! \}
 } RESOURCE_T;
 
 /**
@@ -132,12 +132,12 @@ typedef struct
  */
 typedef struct
 {
-	//! \{
-	const char *name;
-	AwaObjectID id;
-	unsigned int numResources;
-	RESOURCE_T *resources;
-	//! \}
+    //! \{
+    const char *name;
+    AwaObjectID id;
+    unsigned int numResources;
+    RESOURCE_T *resources;
+    //! \}
 } OBJECT_T;
 
 extern const OBJECT_T flowObject, flowAccessObject;
@@ -146,10 +146,10 @@ extern const OBJECT_T flowObject, flowAccessObject;
  */
 typedef struct
 {
-	//! \{
-	AwaClientChangeSubscription *flowObjectChange;
-	AwaClientChangeSubscription *flowAccessObjectChange;
-	//! \}
+    //! \{
+    AwaClientChangeSubscription *flowObjectChange;
+    AwaClientChangeSubscription *flowAccessObjectChange;
+    //! \}
 } FlowSubscriptions;
 
 /**
@@ -157,16 +157,16 @@ typedef struct
  */
 typedef struct
 {
-	//! \{
-	AwaOpaque challenge;
-	AwaInteger iterations;
-	AwaOpaque licenseeHash;
-	bool hasChallenge;
-	bool hasIterations;
-	bool waitForServerResponse;
-	bool verifyLicensee;
-	bool isProvisionSuccess;
-	//! \}
+    //! \{
+    AwaOpaque challenge;
+    AwaInteger iterations;
+    AwaOpaque licenseeHash;
+    bool hasChallenge;
+    bool hasIterations;
+    bool waitForServerResponse;
+    bool verifyLicensee;
+    bool isProvisionSuccess;
+    //! \}
 } Verification;
 
-#endif	/* FDM_COMMON_H */
+#endif  /* FDM_COMMON_H */

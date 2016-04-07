@@ -49,9 +49,9 @@
  */
 typedef enum
 {
-	PROVISION_OK,
-	PROVISION_FAIL,
-	ALREADY_PROVISIONED,
+    PROVISION_OK,
+    PROVISION_FAIL,
+    ALREADY_PROVISIONED,
 }ProvisionStatus;
 
 /**
@@ -59,11 +59,11 @@ typedef enum
  */
 typedef struct
 {
-	//! \{
-	char deviceType[MAX_STR_SIZE];
-	int licenseeID;
-	char fcap[MAX_STR_SIZE];
-	//! \}
+    //! \{
+    char deviceType[MAX_STR_SIZE];
+    int licenseeID;
+    char fcap[MAX_STR_SIZE];
+    //! \}
 }ProvisioningInfo;
 
 /**
@@ -97,7 +97,7 @@ bool EstablishSession();
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionGatewayDevice(const char *deviceName, const char *deviceType,
-	int licenseeID, const char *fcap, const char *licenseeSecret);
+    int licenseeID, const char *fcap, const char *licenseeSecret);
 
 /**
  * @brief Check whether gateway device is already provisioned or not.
@@ -129,7 +129,7 @@ void GetClientList(json_object *respObj);
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fcap,
-	const char *deviceType, int licenseeID, const char *parentID);
+    const char *deviceType, int licenseeID, const char *parentID);
 
 /**
  * @brief Check if constrained device is provisioned or not
@@ -138,4 +138,4 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fca
  */
 bool IsConstrainedDeviceProvisioned(const char* clientID);
 
-#endif	/* DEVICE_MANAGER_H */
+#endif  /* DEVICE_MANAGER_H */
