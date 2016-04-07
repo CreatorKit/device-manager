@@ -283,15 +283,16 @@ bool DefineObjectsAtClient(AwaClientSession *session, const OBJECT_T *objects,
 }
 
 /**
- * @brief Create specified resource with specified value and add it to set operation handler.
+ * @brief Create specified resource if required, fill it with specified value and add it to set operation handler.
  * @param[in] handler A pointer to set operation.
  * @param[in] resourcePath The resource path requested for optional resource creation.
  * @param[in] value Resource value to set.
  * @param[in] type Resource type.
+ * @param[in] create_resource true if resource needs to be created
  * @return true for success otherwise false.
  */
 static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *resourcePath,
-	void *value, AwaResourceType type)
+	void *value, AwaResourceType type, bool create_resource)
 {
 	AwaInteger *intValue;
 	AwaOpaque *opaqueValue;
@@ -306,13 +307,15 @@ static bool AddResourceToHandler(AwaClientSetOperation *handler, const char *res
 
 	LOG(LOG_DBG, "Add resource %s to set operation handler", resourcePath);
 
-	if (AwaClientSetOperation_CreateOptionalResource(handler, resourcePath)
-		!= AwaError_Success)
+	if (create_resource)
 	{
-		LOG(LOG_ERR, "Failed to create %s", resourcePath);
-		return false;
+		if (AwaClientSetOperation_CreateOptionalResource(handler, resourcePath)
+			!= AwaError_Success)
+		{
+			LOG(LOG_ERR, "Failed to create %s", resourcePath);
+			return false;
+		}
 	}
-
 	switch (type)
 	{
 		case AwaResourceType_String:
@@ -370,7 +373,7 @@ bool SetResource(AwaClientSession *session, const char *resourcePath, void *valu
 		return false;
 	}
 
-	if (AddResourceToHandler(handler, resourcePath, value, type))
+	if (AddResourceToHandler(handler, resourcePath, value, type, true))
 	{
 		if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT))
 			== AwaError_Success)
@@ -474,6 +477,7 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
 	char licenseeIdResourcePath[URL_PATH_SIZE] = {0};
 	char fcapResourcePath[URL_PATH_SIZE] = {0};
 	bool status = false;
+	bool create_resource = false;
 	AwaError error;
 
 	if (session == NULL || deviceName == NULL || deviceType == NULL || fcap == NULL)
@@ -516,6 +520,7 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
 			LOG(LOG_ERR, "Failed to create flow object instance\nerror: %s",
 				AwaError_ToString(error));
 		}
+		create_resource = true;
 	}
 	else
 	{
@@ -523,12 +528,13 @@ bool PopulateFlowObject(AwaClientSession *session, const char *deviceName,
 	}
 
 	if (AddResourceToHandler(handler, deviceNameResourcePath, (void *)deviceName,
-		AwaResourceType_String) &&
+			AwaResourceType_String, create_resource) &&
 		AddResourceToHandler(handler, deviceTypeResourcePath, (void *)deviceType,
-		AwaResourceType_String) &&
-		AddResourceToHandler(handler, fcapResourcePath, (void *)fcap, AwaResourceType_String) &&
+			AwaResourceType_String, create_resource) &&
+		AddResourceToHandler(handler, fcapResourcePath, (void *)fcap, AwaResourceType_String,
+			create_resource) &&
 		AddResourceToHandler(handler, licenseeIdResourcePath, &licenseeID,
-		AwaResourceType_Integer))
+			AwaResourceType_Integer, create_resource))
 	{
 		if ((error = AwaClientSetOperation_Perform(handler, IPC_TIMEOUT))
 			== AwaError_Success)
