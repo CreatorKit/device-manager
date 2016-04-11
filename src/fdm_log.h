@@ -41,6 +41,12 @@
 #include <time.h>
 
 //! \{
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 #define LOG_FATAL    (1)
 #define LOG_ERR      (2)
 #define LOG_WARN     (3)
@@ -57,25 +63,40 @@
 		time_t currentTime = time(NULL);                                      \
 		char buffer[TIME_BUFFER_SIZE] = {0};                                  \
 		strftime(buffer, TIME_BUFFER_SIZE, "%x %X", localtime(&currentTime)); \
-		fprintf(debugStream,"[%s] %s:%d: ", buffer, __FILENAME__, __LINE__);  \
+		fprintf(debugStream,"[%s] ", buffer);                                 \
+		fprintf(debugStream, ANSI_COLOR_YELLOW);                              \
+		fprintf(debugStream,"%s:%d: ", __FILENAME__, __LINE__);               \
+		fprintf(debugStream, ANSI_COLOR_RESET);                               \
 	} while (0)
 
 /** Macro for logging message at the specified level. */
-#define LOG(level, ...)                         \
-	do {                                        \
-		if (level <= debugLevel)                \
-		{                                       \
-			if (debugStream == NULL)            \
-				debugStream = stdout;           \
-			fprintf(debugStream, "\n");         \
-			if (debugLevel == LOG_DBG)          \
-			{                                   \
-				DEBUG_PRINT;                    \
-			}                                   \
-			fprintf(debugStream, __VA_ARGS__);  \
-			fprintf(debugStream, "\n");         \
-			fflush(debugStream);                \
-		}                                       \
+#define LOG(level, ...)                                       \
+	do {                                                      \
+		if (level <= debugLevel)                              \
+		{                                                     \
+			if (debugStream == NULL)                          \
+				debugStream = stdout;                         \
+			fprintf(debugStream, "\n");                       \
+			if (debugLevel == LOG_DBG)                        \
+			{                                                 \
+				DEBUG_PRINT;                                  \
+			}                                                 \
+			switch (level)                                    \
+			{                                                 \
+				case LOG_ERR:                                 \
+					fprintf(debugStream, ANSI_COLOR_RED);     \
+					break;                                    \
+				case LOG_INFO:                                \
+					fprintf(debugStream, ANSI_COLOR_CYAN);    \
+					break;                                    \
+				default:                                      \
+					break;                                    \
+			}                                                 \
+			fprintf(debugStream, __VA_ARGS__);                \
+			fprintf(debugStream, ANSI_COLOR_RESET);           \
+			fprintf(debugStream, "\n");                       \
+			fflush(debugStream);                              \
+		}                                                     \
 	} while (0)
 
 /** Output stream to dump logs. */
