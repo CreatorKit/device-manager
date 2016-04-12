@@ -295,7 +295,7 @@ ProvisionStatus ProvisionGatewayDevice(const char *deviceName, const char *devic
 
     if (!timeout)
     {
-        LOG(LOG_INFO, "No response within timeout");
+        LOG(LOG_ERR, "No response within timeout");
     }
 
     // FIXME: Temporary code until status resource is removed from FlowObject so we only get one
