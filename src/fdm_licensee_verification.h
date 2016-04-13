@@ -37,14 +37,12 @@
 #define FDM_LICENSEE_VERIFICATION_H
 
 /**
- * @brief Perform flow licensee verification using challenge and hash iterations and set the
- *        licensee hash to the flow object.
+ * @brief Perform flow licensee verification using challenge and hash iterations and set the licensee hash to the flow object.
  * @param[in] session A pointer to a valid session.
  * @param[in] verificationData Licensee verification data.
  * @param[in] licenseeSecret Licensee Secret.
  * @return true for success otherwise false.
  */
-bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData,
-	const char *licenseeSecret);
+bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData, const char *licenseeSecret);
 
-#endif	/* FDM_LICENSEE_VERIFICATION_H */
+#endif  /* FDM_LICENSEE_VERIFICATION_H */

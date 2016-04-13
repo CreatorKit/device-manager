@@ -42,16 +42,16 @@
 */
 void CopyStringWithoutSpace(char *targetString, const char *sourceString)
 {
-	unsigned int i = 0, j = 0;
+    unsigned int i = 0, j = 0;
 
-	while (sourceString[i] != '\0')
-	{
-		if (sourceString[i] != ' ')
-		{
-			targetString[j] = sourceString[i];
-			j++;
-		}
-		i++;
-	}
-	targetString[j] = '\0';
+    while (sourceString[i] != '\0')
+    {
+        if (sourceString[i] != ' ')
+        {
+            targetString[j] = sourceString[i];
+            j++;
+        }
+        i++;
+    }
+    targetString[j] = '\0';
 }

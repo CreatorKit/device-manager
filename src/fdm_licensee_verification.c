@@ -60,87 +60,86 @@
 * @return true for success otherwise false.
 */
 static bool CalculateLicenseeHash(uint8_t hash[SHA256_HASH_LENGTH], const char *challenge,
-	int challengeLength, int iterations, const char *licenseeSecret)
+    int challengeLength, int iterations, const char *licenseeSecret)
 {
-	unsigned int i;
-	uint8_t key[MAX_STR_SIZE];
-	int keyLength;
+    unsigned int i;
+    uint8_t key[MAX_STR_SIZE];
+    int keyLength;
 
-	if (challenge == NULL || licenseeSecret == NULL)
-	{
-		LOG(LOG_ERR, "Null params passed to %s()", __func__);
-		return false;
-	}
+    if (challenge == NULL || licenseeSecret == NULL)
+    {
+        LOG(LOG_ERR, "Null params passed to %s()", __func__);
+        return false;
+    }
 
-	LOG(LOG_DBG, "Calculating licensee hash");
+    LOG(LOG_DBG, "Calculating licensee hash");
 
-	keyLength = b64Decode((char *)key, sizeof(key), licenseeSecret, strlen(licenseeSecret));
+    keyLength = b64Decode((char *)key, sizeof(key), licenseeSecret, strlen(licenseeSecret));
 
-	if (keyLength == -1)
-	{
-		LOG(LOG_ERR, "Failed to decode a base64 encoded value");
-		return false;
-	}
+    if (keyLength == -1)
+    {
+        LOG(LOG_ERR, "Failed to decode a base64 encoded value");
+        return false;
+    }
 
-	HmacSha256_ComputeHash(hash, (const uint8_t *) challenge, challengeLength, key, keyLength);
-	for (i = 1; i < iterations; i++)
-	{
-		HmacSha256_ComputeHash(hash, hash, SHA256_HASH_LENGTH, key, keyLength);
-	}
-	return true;
+    HmacSha256_ComputeHash(hash, (const uint8_t *) challenge, challengeLength, key, keyLength);
+    for (i = 1; i < iterations; i++)
+    {
+        HmacSha256_ComputeHash(hash, hash, SHA256_HASH_LENGTH, key, keyLength);
+    }
+    return true;
 }
 
-bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData,
-	const char *licenseeSecret)
+bool PerformFlowLicenseeVerification(AwaClientSession *session, Verification *verificationData, const char *licenseeSecret)
 {
-	uint8_t licenseeHash[SHA256_HASH_LENGTH] = {0};
-	char licenseeHashResourcePath[URL_PATH_SIZE] = {0};
-	AwaError error;
+    uint8_t licenseeHash[SHA256_HASH_LENGTH] = {0};
+    char licenseeHashResourcePath[URL_PATH_SIZE] = {0};
+    AwaError error;
 
-	if (session == NULL || verificationData == NULL)
-	{
-		LOG(LOG_ERR, "Null params passed to %s()", __func__);
-		return false;
-	}
+    if (session == NULL || verificationData == NULL)
+    {
+        LOG(LOG_ERR, "Null params passed to %s()", __func__);
+        return false;
+    }
 
-	LOG(LOG_INFO, "Performing flow license verification");
+    LOG(LOG_INFO, "Performing flow license verification");
 
-	// Calculate the LicenseeHash based-on challenge
-	if (!CalculateLicenseeHash(licenseeHash, verificationData->challenge.Data,
-		verificationData->challenge.Size, verificationData->iterations, licenseeSecret))
-	{
-		LOG(LOG_ERR, "Failed to calculate licensee hash");
-		verificationData->waitForServerResponse = false;
-		return false;
-	}
+    // Calculate the LicenseeHash based-on challenge
+    if (!CalculateLicenseeHash(licenseeHash, verificationData->challenge.Data,
+        verificationData->challenge.Size, verificationData->iterations, licenseeSecret))
+    {
+        LOG(LOG_ERR, "Failed to calculate licensee hash");
+        verificationData->waitForServerResponse = false;
+        return false;
+    }
 
-	if (verificationData->licenseeHash.Data != NULL)
-	{
-		free(verificationData->licenseeHash.Data);
-	}
-	verificationData->licenseeHash.Data = malloc(SHA256_HASH_LENGTH);
-	if (verificationData->licenseeHash.Data != NULL)
-	{
-		memcpy(verificationData->licenseeHash.Data , licenseeHash, SHA256_HASH_LENGTH);
-	}
-	verificationData->licenseeHash.Size = SHA256_HASH_LENGTH;
+    if (verificationData->licenseeHash.Data != NULL)
+    {
+        free(verificationData->licenseeHash.Data);
+    }
 
-	// Write the hash to the Flow object
-	if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeHashResourcePath,
-			FlowObjectResourceId_LicenseeHash)) == AwaError_Success)
-	{
-		if(!SetResource(session, licenseeHashResourcePath, (void *)&verificationData->licenseeHash,
-			AwaResourceType_Opaque))
-		{
-			LOG(LOG_ERR, "Failed to set licensee hash");
-			return false;
-		}
-	}
-	else
-	{
-		LOG(LOG_ERR, "Failed to create licensee hash resource path\n"
-			"error: %s", AwaError_ToString(error));
-		return false;
-	}
-	return true;
+    verificationData->licenseeHash.Data = malloc(SHA256_HASH_LENGTH);
+
+    if (verificationData->licenseeHash.Data != NULL)
+    {
+        memcpy(verificationData->licenseeHash.Data , licenseeHash, SHA256_HASH_LENGTH);
+    }
+
+    verificationData->licenseeHash.Size = SHA256_HASH_LENGTH;
+
+    // Write the hash to the Flow object
+    if ((error = MAKE_FLOW_OBJECT_RESOURCE_PATH(licenseeHashResourcePath, FlowObjectResourceId_LicenseeHash)) == AwaError_Success)
+    {
+        if(!SetResource(session, licenseeHashResourcePath, (void *)&verificationData->licenseeHash, AwaResourceType_Opaque))
+        {
+            LOG(LOG_ERR, "Failed to set licensee hash");
+            return false;
+        }
+    }
+    else
+    {
+        LOG(LOG_ERR, "Failed to create licensee hash resource path\nerror: %s", AwaError_ToString(error));
+        return false;
+    }
+    return true;
 }
