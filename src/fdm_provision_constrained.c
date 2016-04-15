@@ -61,8 +61,6 @@
 
 #define COAP_TIMEOUT 10000
 
-#define POLLING_TIMEOUT_SECONDS 30
-
 #define POLLING_SLEEP_SECONDS 2
 
 /***************************************************************************************************
@@ -512,15 +510,12 @@ static bool RemoveDeviceObservations(const char *clientID,
     return result;
 }
 
-static bool WriteProvisioningInformationToDevice (const AwaServerSession *session,
-    const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID,
-    const char *parentID)
+static bool WriteParentID (const AwaServerSession *session, const char *clientID, const char *parentID)
 {
-    bool result = false;
-    AwaError error = AwaError_Success;
     unsigned char i, gatewayDeviceID[DEVICE_ID_SIZE];
     AwaOpaque parentIDOpaque;
-
+    AwaError error = AwaError_Success;
+    bool result = false;
     // 3 because two is for hex letters and one for space
     if (strlen(parentID)/3 != DEVICE_ID_SIZE)
     {
@@ -528,6 +523,39 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
         return false;
     }
 
+    AwaServerWriteOperation *writeOp = AwaServerWriteOperation_New(session, AwaWriteMode_Update);
+    if (writeOp != NULL)
+    {
+        for (i = 0; i < DEVICE_ID_SIZE; i++)
+        {
+            // 3 because two is for hex letters and one for space
+            sscanf(&parentID[i*3], "%02hhX", &gatewayDeviceID[i]);
+        }
+        parentIDOpaque.Data = gatewayDeviceID;
+        parentIDOpaque.Size = sizeof(gatewayDeviceID);
+        error = AwaServerWriteOperation_AddValueAsOpaque(writeOp, pathStore.parentIDPath, parentIDOpaque);
+        if (error == AwaError_Success)
+        {
+            error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
+            if (error == AwaError_Success)
+            {
+                result = true;
+            }
+            else
+            {
+                LOG(LOG_ERR, "Failed to write parentID\nerror: %s", AwaError_ToString(error));
+            }
+        }
+        AwaServerWriteOperation_Free(&writeOp);
+    }
+    return result;
+}
+
+static bool WriteProvisioningInformationToDevice (const AwaServerSession *session,
+    const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID)
+{
+    bool result = false;
+    AwaError error = AwaError_Success;
     AwaServerWriteOperation *writeOp = AwaServerWriteOperation_New(session, AwaWriteMode_Update);
     if (writeOp != NULL)
     {
@@ -547,37 +575,27 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
         }
         if (error == AwaError_Success)
         {
-            for (i = 0; i < DEVICE_ID_SIZE; i++)
-            {
-                // 3 because two is for hex letters and one for space
-                sscanf(&parentID[i*3], "%02hhX", &gatewayDeviceID[i]);
-            }
-            parentIDOpaque.Data = gatewayDeviceID;
-            parentIDOpaque.Size = sizeof(gatewayDeviceID);
-            error = AwaServerWriteOperation_AddValueAsOpaque(writeOp, pathStore.parentIDPath, parentIDOpaque);
-        }
-        if (error == AwaError_Success)
-        {
             error = AwaServerWriteOperation_Perform(writeOp, clientID, COAP_TIMEOUT);
             if (error == AwaError_Success)
             {
                 result = true;
             }
+            else
+            {
+                LOG(LOG_ERR, "Failed to perform write operation\nerror: %s", AwaError_ToString(error));
+            }
         }
         else
         {
-            LOG(LOG_ERR, "Failed to create write request\nerror: %s",
-                AwaError_ToString(error));
+            LOG(LOG_ERR, "Failed to create write request\nerror: %s", AwaError_ToString(error));
         }
-
         AwaServerWriteOperation_Free(&writeOp);
     }
     return result;
 }
 
-static bool WaitForNotification(AwaServerSession *session)
+static bool WaitForNotification(AwaServerSession *session, int timeout)
 {
-    int timeout = POLLING_TIMEOUT_SECONDS;
     while (timeout-- != 0)
     {
         AwaServerSession_Process(session, COAP_TIMEOUT);
@@ -613,13 +631,12 @@ bool IsConstrainedDeviceProvisioned(const char *clientID)
     {
         status = IsDeviceProvisioned(serverSession, clientID);
     }
-
     Server_ReleaseSession(&serverSession);
     return status;
 }
 
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char*fcap,
-    const char *deviceType, int licenseeID, const char *parentID)
+    const char *deviceType, int licenseeID, const char *parentID, int timeout)
 {
     ProvisionStatus result = PROVISION_FAIL;
     OBJECT_T flowObjects[] = {flowObject, flowAccessObject};
@@ -659,11 +676,12 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char*fcap
 
             if (ObserveDeviceFlowAccessObject(serverSession, clientID, &flowAccessObjectChange, &flowAccessObjectChangeObservation))
             {
-                if (!WriteProvisioningInformationToDevice(serverSession, clientID, fcap, deviceType, licenseeID, parentID))
+                if (!WriteProvisioningInformationToDevice(serverSession, clientID, fcap, deviceType, licenseeID) ||
+                    !WriteParentID(serverSession, clientID, parentID))
                 {
                     LOG(LOG_ERR, "Writing of device provisioning information failed");
                 }
-                else if (WaitForNotification(serverSession))
+                else if (WaitForNotification(serverSession, timeout))
                 {
                     result = PROVISION_OK;
                 }

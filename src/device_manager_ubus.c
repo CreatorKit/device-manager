@@ -67,6 +67,7 @@ enum {
     ARG_CONSTRAINED_LICENSEE_ID,
     ARG_CONSTRAINED_FCAP,
     ARG_CONSTRAINED_PARENT_ID,
+    ARG_CONSTRAINED_TIMEOUT,
     PROVISION_CONSTRAINED_DEVICE_MAX
 };
 
@@ -112,7 +113,8 @@ static const struct blobmsg_policy
     [ARG_CONSTRAINED_DEVICE_TYPE] = {.name = "device_type", .type = BLOBMSG_TYPE_STRING},
     [ARG_CONSTRAINED_LICENSEE_ID] = {.name = "licensee_id", .type = BLOBMSG_TYPE_INT32},
     [ARG_CONSTRAINED_FCAP] = {.name = "fcap", .type = BLOBMSG_TYPE_STRING},
-    [ARG_CONSTRAINED_PARENT_ID] = {.name = "parent_id", .type = BLOBMSG_TYPE_STRING}
+    [ARG_CONSTRAINED_PARENT_ID] = {.name = "parent_id", .type = BLOBMSG_TYPE_STRING},
+    [ARG_CONSTRAINED_TIMEOUT] = {.name = "timeout", .type = BLOBMSG_TYPE_INT32}
 };
 
 /** IsConstrainedDeviceProvisioned arguments and their type. */
@@ -245,6 +247,7 @@ static int ProvisionConstrainedDeviceHandler(struct ubus_context *ctx, struct ub
 {
     struct blob_attr *args[PROVISION_CONSTRAINED_DEVICE_MAX];
     struct blob_buf b = {0};
+    int timeout;
 
     blobmsg_parse(provisionConstrainedDevicePolicy, PROVISION_CONSTRAINED_DEVICE_MAX, args, blob_data(msg), blob_len(msg));
     if (!args[ARG_CONSTRAINED_DEVICE_TYPE] || !args[ARG_CONSTRAINED_LICENSEE_ID] ||
@@ -258,10 +261,15 @@ static int ProvisionConstrainedDeviceHandler(struct ubus_context *ctx, struct ub
     char *fcap = blobmsg_get_string(args[ARG_CONSTRAINED_FCAP]);
     char *parentID = blobmsg_get_string(args[ARG_CONSTRAINED_PARENT_ID]);
 
+    if (!args[ARG_CONSTRAINED_TIMEOUT])
+        timeout = DEFAULT_PROVSIONING_TIMEOUT;
+    else
+        timeout = blobmsg_get_u32(args[ARG_CONSTRAINED_TIMEOUT]);
+
     if (!deviceType || !clientID || !fcap || !parentID)
         return UBUS_STATUS_UNKNOWN_ERROR;
 
-    ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID, parentID);
+    ProvisionStatus status = ProvisionConstrainedDevice(clientID, fcap, deviceType, licenseeID, parentID, timeout);
 
     blob_buf_init(&b, 0);
     blobmsg_add_u32(&b, "status", status);
