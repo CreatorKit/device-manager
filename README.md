@@ -18,7 +18,14 @@ Prior to running device manager, make sure that:
 - Awalwm2m server daemon(awa_serverd) is running.
 
 **NOTE:** Please do "ps" on console to see "specific" process is running or not.
-
+```
+ 1292 root      1120 S    /bin/awa_bootstrapd -l /var/log/awa_bootstrapd --int
+ 1296 root      1436 S    /bin/awa_clientd -l /var/log/awa_clientd --bootstrap
+ 1304 root      1316 S    /bin/awa_serverd -l /var/log/awa_serverd --interface
+ 1331 root      3984 S    /usr/bin/button_gateway_appd -l /var/log/button_gate
+ 1336 root      1368 S    {button_gateway_} /bin/sh /etc/rc.common /usr/bin/bu
+ 1344 root      1872 S    /usr/bin/device_manager_ubusd -l /var/log/device_man
+```
 ## Using the ubus interface of Device Manager
 ### Provisioning the gateway device:
 
