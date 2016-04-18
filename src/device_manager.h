@@ -42,6 +42,7 @@
 
 //! \{
 #define MAX_STR_SIZE                (64)
+#define DEFAULT_PROVSIONING_TIMEOUT (30)
 //! \}
 
 /**
@@ -129,7 +130,7 @@ void GetClientList(json_object *respObj);
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fcap,
-    const char *deviceType, int licenseeID, const char *parentID);
+    const char *deviceType, int licenseeID, const char *parentID, int timeout);
 
 /**
  * @brief Check if constrained device is provisioned or not

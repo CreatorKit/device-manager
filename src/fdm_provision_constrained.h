@@ -41,12 +41,13 @@
  * @param[in] deviceType registered device type
  * @param[in] licenseeID Licensee ID.
  * @param[in] parentID Device ID of Gateway device.
+ * @param[in] timeout time to wait for notification to arrive.
  * @return 0 for PROVISION_OK
            1 for PROVISION_FAIL
            2 for ALREADY_PROVISIONED
  */
 ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fcap,
-    const char *deviceType, int licenseeID, const char *parentID);
+    const char *deviceType, int licenseeID, const char *parentID, int timeout);
 
 /**
  * @brief Poll the contents of the FlowAccessObject of the constrained device.
