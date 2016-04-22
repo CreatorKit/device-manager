@@ -77,8 +77,8 @@ static void ListClients(const AwaServerSession *session, json_object *respObj)
             while(AwaClientIterator_Next(clientIterator))
             {
                 const char *clientID = AwaClientIterator_GetClientID(clientIterator);
-
-                json_bool provisionStatus = IsDeviceProvisioned(session, clientID) ? 1 : 0;
+                const AwaServerListClientsResponse *response = AwaServerListClientsOperation_GetResponse(operation, clientID);
+                json_bool provisionStatus = IsFlowAccessInstanceRegistered(session, response) ? 1 : 0;
                 json_object *clientObj = json_object_new_object();
                 json_object_object_add(clientObj, "clientId", json_object_new_string(clientID));
                 json_object_object_add(clientObj, "is_device_provisioned", json_object_new_boolean(provisionStatus));
