@@ -169,4 +169,17 @@ typedef struct
     //! \}
 } Verification;
 
+
+
+/**
+ * Constrained Device information.
+ */
+typedef struct {
+    //! \{
+    bool isDevicePresent;
+    bool isFlowObjectInstanceRegistered;
+    bool isFlowAccessInstanceRegistered;
+    //! \}
+} DeviceStatus;
+
 #endif  /* FDM_COMMON_H */
