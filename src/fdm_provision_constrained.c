@@ -57,11 +57,13 @@
  * Definitions
  **************************************************************************************************/
 
+//! @cond Doxygen_Suppress
 #define QUERY_TIMEOUT 5000
 
 #define COAP_TIMEOUT 10000
 
 #define POLLING_SLEEP_SECONDS 2
+//! @endcond
 
 /***************************************************************************************************
  * Typedef
@@ -87,13 +89,19 @@ typedef struct
  * Globals
  **************************************************************************************************/
 
+//! @cond Doxygen_Suppress
 static Paths pathStore;
 static bool pathsMade = false;
+//! @endcond
 
 /***************************************************************************************************
  * Implementation
  **************************************************************************************************/
 
+/**
+ * @brief Generate Object and Resource paths.
+ * @return true if object and resource paths are generated successfully, else false.
+ */
 static bool MakePaths(void)
 {
     memset(&pathStore, 0, sizeof(Paths));
@@ -119,7 +127,12 @@ static bool MakePaths(void)
     return true;
 }
 
-
+/**
+ * @brief Check if flow access instance is registered or not.
+ * @param[in] session Holds server session.
+ * @param[in] clientListResponse List of responses from client.
+ * @return true if flow access instance found, else false.
+ */
 bool IsFlowAccessInstanceRegistered(const AwaServerSession *session, const AwaServerListClientsResponse *clientListResponse)
 {
     bool found = false;
@@ -141,6 +154,12 @@ bool IsFlowAccessInstanceRegistered(const AwaServerSession *session, const AwaSe
     return found;
 }
 
+/**
+ * @brief Check if flow object instance is registered or not.
+ * @param[in] session Holds server session.
+ * @param[in] clientListResponse List of responses from client.
+ * @return true if flow object instance found, else false.
+ */
 bool IsFlowObjectInstanceRegistered(const AwaServerSession *session, const AwaServerListClientsResponse *clientListResponse)
 {
     bool found = false;
@@ -162,6 +181,13 @@ bool IsFlowObjectInstanceRegistered(const AwaServerSession *session, const AwaSe
     return found;
 }
 
+/**
+ * @brief Get device's flow object and flow access instance status.
+ * @param[in] session Holds server session.
+ * @param[in] clientID Holds ID of registered client.
+ * @param[in] deviceStatus Pointer to structure holding device status information.
+ * @return true if status is retrieved successfully, else false.
+ */
 static bool GetDeviceStatus(const AwaServerSession *session, const char *clientID, DeviceStatus *deviceStatus)
 {
     AwaError error = AwaError_Unspecified;
@@ -204,6 +230,13 @@ static bool GetDeviceStatus(const AwaServerSession *session, const char *clientI
     return true;
 }
 
+/**
+ * @brief Write to the parent ID resource of flow object of constrained device.
+ * @param[in] session Holds server session.
+ * @param[in] clientID Holds ID of registered client.
+ * @param[in] parentID Parent ID to be assigned.
+ * @return true if parent ID written successfully, else false.
+ */
 static bool WriteParentID (const AwaServerSession *session, const char *clientID, const char *parentID)
 {
     unsigned char i, gatewayDeviceID[DEVICE_ID_SIZE];
@@ -245,6 +278,16 @@ static bool WriteParentID (const AwaServerSession *session, const char *clientID
     return result;
 }
 
+/**
+ * @brief Write provisioning information e.g. device type, licensee ID and fcap to device.
+ * @param[in] session Holds server session.
+ * @param[in] clientID Holds ID of registered client.
+ * @param[in] fcapCode Pointer to fcap code.
+ * @param[in] deviceType Pointer to device type.
+ * @param[in] licenseeID Licensee ID.
+ * @param[in] isFlowObjectInstanceRegistered States if flow object instance is registered or not.
+ * @return true if provisioning information is written successfully to device, else false.
+ */
 static bool WriteProvisioningInformationToDevice (const AwaServerSession *session,
     const char *clientID, const char *fcapCode, const char *deviceType, int licenseeID, bool isFlowObjectInstanceRegistered)
 {
@@ -288,6 +331,13 @@ static bool WriteProvisioningInformationToDevice (const AwaServerSession *sessio
     return result;
 }
 
+/**
+ * @brief Wait for specified timeout until provisioning is done.
+ * @param[in] serverSession Holds server session.
+ * @param[in] clientID Holds ID of registered client.
+ * @param[in] timeout Time to wait for provisioning to complete.
+ * @return true if provisioning is successful, else false.
+ */
 static bool WaitForProvisioning(AwaServerSession *serverSession, const char *clientID, int timeout)
 {
     DeviceStatus deviceStatus;

@@ -28,6 +28,15 @@
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file fdm_provision_constrained.h
+ * @brief Provides provisioning operations.
+ */
+
+/***************************************************************************************************
+ * Includes
+ **************************************************************************************************/
+
 #ifndef FDM_PROVISION_CONSTRAINED_H
 #define FDM_PROVISION_CONSTRAINED_H
 
@@ -53,7 +62,7 @@ ProvisionStatus ProvisionConstrainedDevice(const char *clientID, const char *fca
  * @brief Poll the contents of the FlowAccessObject of the constrained device.
  *        and check if the device has been provisioned.
  * @param[in] session handle to the session with server
- * @param[in] cientID Name of the device
+ * @param[in] clientID Name of the device
  * @return true if device is provisioned else false
  */
 bool IsDeviceProvisioned(const AwaServerSession *session, const char *clientID);
