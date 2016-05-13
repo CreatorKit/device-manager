@@ -19,6 +19,9 @@ Prior to running device manager, make sure that:
 
 **NOTE:** Please do "ps" on console to see "specific" process is running or not.
 
+## Application flow diagram
+![Device Manager Sequence Diagram](docs/device-manager-ubusd-seq-diag.png)
+
 ## Using the ubus interface of Device Manager
 ### Provisioning the gateway device:
 
@@ -74,3 +77,17 @@ root@OpenWrt:/# ubus call device_manager is_constrained_device_provisioned '{"cl
 ## Debugging
 
 The logs of device manager application can be found at /var/log/device_manager_ubusd
+
+## API guide
+
+Device Manager documentation is available as a Doxygen presentation which is generated via the following process.
+
+  1. Install [Doxygen ](http://www.stack.nl/~dimitri/doxygen/download.html): ```` sudo apt-get install doxygen````
+  2. Generate the documentation:
+
+        $ device-manager: mkdir build
+        $ device-manager/build: cd build
+        $ device-manager/build: cmake ../docs
+        $ device-manager/build: make docs
+
+The output can be found in the build/html directory and viewed by opening index.html with your web browser.

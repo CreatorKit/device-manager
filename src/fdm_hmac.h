@@ -28,10 +28,21 @@
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file fdm_hmac.h
+ * @brief Provides provisioning operations.
+ */
+
+/***************************************************************************************************
+ * Includes
+ **************************************************************************************************/
+
 #ifndef HMAC_256_H
 #define HMAC_256_H
 
+//! \{
 #define SHA256_HASH_LENGTH 32
+//! \}
 
 #include <inttypes.h>
 

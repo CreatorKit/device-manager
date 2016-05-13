@@ -125,6 +125,7 @@ void GetClientList(json_object *respObj);
  * @param[in] deviceType registered device type
  * @param[in] licenseeID Licensee ID.
  * @param[in] parentID Device ID of Gateway device.
+ * @param[in] timeout Time to wait for provisioning to complete.
  * @return 0 for PROVISION_OK
            1 for PROVISION_FAIL
            2 for ALREADY_PROVISIONED
