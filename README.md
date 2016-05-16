@@ -91,4 +91,3 @@ Device Manager documentation is available as a Doxygen presentation which is gen
         $ device-manager/build: make docs
 
 The output can be found in the build/html directory and viewed by opening index.html with your web browser.
->>>>>>> dev
