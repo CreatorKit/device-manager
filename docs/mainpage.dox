@@ -1,0 +1,12 @@
+/** @mainpage Flow Device Manager
+@section overview Overview
+
+Device Manager application is used to provision the gateway device and constrained devices with access details to register with the FlowCloud. It runs on the gateway device and uses the Awalwm2m sdk to communicate with the awalwm2m server and client running on the same. Currently it can be used to :
+
+- Provision the gateway device
+- Check if the gateway device is provisioned or not
+- Provision the constrained device
+- Check if the constrained device is provisioned or not
+- List the constrained devices connected to the local server
+
+ */
